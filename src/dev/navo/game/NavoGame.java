@@ -1,43 +1,29 @@
 package dev.navo.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import dev.navo.game.Screen.PlayScreen;
 
-public class NavoGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	int xPos = 0;
-	int checker = 0;
+public class NavoGame extends Game {
+	public static final int V_WIDTH = 400;
+	public static final int V_HEIGHT = 300;
+	public static final int PPM = 100;
+
+	public SpriteBatch batch;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		setScreen(new PlayScreen(this));
 	}
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 1, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		if(checker == 0) {
-			xPos += 5;
-			batch.draw(img, xPos, 100);
-			if(xPos >= 300) checker = 1;
+		super.render();
+	}
 
-		}else if(checker == 1) {
-			xPos -= 5;
-			batch.draw(img, xPos, 100);
-			if(xPos <= 0) checker = 0;
-		}
-		batch.end();
-	}
-	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
 }
