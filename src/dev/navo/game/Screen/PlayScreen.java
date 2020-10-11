@@ -5,24 +5,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
-import dev.navo.game.Sprites.Cat;
 import dev.navo.game.Sprites.Crewmate;
 import dev.navo.game.Tools.B2WorldCreator;
 
@@ -46,7 +38,7 @@ public class PlayScreen implements Screen {
     private Crewmate c1;
     private ArrayList<Crewmate> cList;
 
-    private String mapTyep = "Navo32.tmx";
+    private String mapType = "Navo32.tmx";
     private static final int moveSpeed = 10;
     private static final int maxSpeed = 100;
 
@@ -59,7 +51,7 @@ public class PlayScreen implements Screen {
         hud = new Hud(game.batch);
 
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load(mapTyep);
+        map = mapLoader.load(mapType);
         renderer = new OrthogonalTiledMapRenderer(map);
         gameCam.position.set(200,1130, 0); // 200, 1130 = Left Top
 
@@ -67,14 +59,13 @@ public class PlayScreen implements Screen {
         b2dr = new Box2DDebugRenderer();
 
         new B2WorldCreator(world, map);
-        c1 = new Crewmate(world, this);
+        c1 = new Crewmate(world, this, new Vector2(200, 500));
         cList = new ArrayList<>();
-        cList.add(new Crewmate(world, this));
-        cList.add(new Crewmate(world, this));
-        cList.add(new Crewmate(world, this));
-        cList.add(new Crewmate(world, this));
-        cList.add(new Crewmate(world, this));
-        cList.add(new Crewmate(world, this));
+        cList.add(c1);
+        for(int i = 0 ; i < 5 ; i++){
+            Crewmate temp = new Crewmate(world, this, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20));
+            cList.add(temp);
+        }
     }
 
     public TextureAtlas getAtlas(){
@@ -87,9 +78,9 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt){
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)   && c1.b2Body.getLinearVelocity().y  <= maxSpeed){
+        if(Gdx.input.isKeyPressed(Input.Keys.UP) && c1.b2Body.getLinearVelocity().y  < maxSpeed){
             c1.b2Body.applyLinearImpulse(new Vector2(0, moveSpeed), c1.b2Body.getWorldCenter(), true);
-        }else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)  && c1.b2Body.getLinearVelocity().y  >= -maxSpeed){
+        }else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)  && c1.b2Body.getLinearVelocity().y  > -maxSpeed){
             c1.b2Body.applyLinearImpulse(new Vector2(0, -moveSpeed), c1.b2Body.getWorldCenter(), true);
         }else if(c1.b2Body.getLinearVelocity().y < 0){
             if(c1.b2Body.getLinearVelocity().y >= -10)
@@ -103,9 +94,9 @@ public class PlayScreen implements Screen {
                 c1.b2Body.setLinearVelocity(c1.b2Body.getLinearVelocity().x, c1.b2Body.getLinearVelocity().y-10);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && c1.b2Body.getLinearVelocity().x  >= -maxSpeed){
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && c1.b2Body.getLinearVelocity().x  > -maxSpeed){
             c1.b2Body.applyLinearImpulse(new Vector2(-moveSpeed, 0), c1.b2Body.getWorldCenter(), true);
-        }else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)  && c1.b2Body.getLinearVelocity().x  <= maxSpeed){
+        }else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)  && c1.b2Body.getLinearVelocity().x  < maxSpeed){
             c1.b2Body.applyLinearImpulse(new Vector2(moveSpeed, 0), c1.b2Body.getWorldCenter(), true);
         }else if(c1.b2Body.getLinearVelocity().x < 0){
             if(c1.b2Body.getLinearVelocity().x >= -10)
@@ -118,11 +109,10 @@ public class PlayScreen implements Screen {
             else
                 c1.b2Body.setLinearVelocity(c1.b2Body.getLinearVelocity().x-10, c1.b2Body.getLinearVelocity().y);
         }
-        //hud.showMessage(""+ c1.getStateTimer());
 
 
         if(Gdx.input.isTouched()) {
-            hud.showMessage("" + Gdx.input.getX() + ", " + Gdx.input.getY() + " | " + c1.b2Body.getPosition().x + ", " + c1.b2Body.getPosition().y);
+            c1 = cList.get((int)(Math.random() * cList.size()));
         }
     }
 
@@ -131,9 +121,11 @@ public class PlayScreen implements Screen {
 
         world.step(1/60f, 6, 2);
 
-        c1.update(dt);
+        //c1.update(dt);
         for(Crewmate c : cList)
             c.update(dt);
+
+        hud.showMessage("x축 속도 : "+ c1.b2Body.getLinearVelocity().x + ", y축 속도" + c1.b2Body.getLinearVelocity().y);
         gameCam.position.x = c1.b2Body.getPosition().x;
         gameCam.position.y = c1.b2Body.getPosition().y;
 
@@ -170,7 +162,6 @@ public class PlayScreen implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override

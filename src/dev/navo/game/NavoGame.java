@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import dev.navo.game.Screen.LoginScreen;
 import dev.navo.game.Screen.PlayScreen;
 
 public class NavoGame extends Game {
@@ -18,7 +19,7 @@ public class NavoGame extends Game {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		setScreen(new PlayScreen(this));
+		setScreen(new LoginScreen(this));
 	}
 
 	@Override

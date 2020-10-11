@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import dev.navo.game.Screen.PlayScreen;
@@ -23,12 +24,12 @@ public class Crewmate  extends Sprite {
 
     private boolean isStop;
     private float stateTimer;
-    private final static float frameDuration = (float) 0.1;
+    private final static float frameDuration = (float) 0.2;
     public float getStateTimer(){
         return stateTimer;
     }
 
-    public Crewmate(World world, PlayScreen screen){
+    public Crewmate(World world, PlayScreen screen, Vector2 v){
         super(screen.getAtlas().findRegion("CrewmateMove"));
         this.world = world;
         currentState = State.DOWN;
@@ -59,15 +60,15 @@ public class Crewmate  extends Sprite {
         crewmateRight = new Animation(frameDuration, frames);
         frames.clear();
 
-        defineCrewmate();
+        defineCrewmate(v);
         crewmateFrontStand = new TextureRegion(getTexture(), 0, 50, 20, 25);
-        setBounds(250-11, 1170-12, 20, 25);
+        setBounds(200-11, 500-12, 20, 25);
         setRegion(crewmateFrontStand);
     }
 
-    public void defineCrewmate(){
+    public void defineCrewmate(Vector2 v){
         BodyDef bDef = new BodyDef();
-        bDef.position.set(250,1170);
+        bDef.position.set(v.x,v.y);
         bDef.type = BodyDef.BodyType.DynamicBody;
         b2Body = world.createBody(bDef);
 
