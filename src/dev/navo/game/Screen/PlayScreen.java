@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -41,6 +42,8 @@ public class PlayScreen implements Screen {
 
     private ArrayList<Bullet> bList;
 
+    private ArrayList<Rectangle> recList;
+
 
     private String mapType = "Navo32.tmx";
     private static final int moveSpeed = 10;
@@ -62,7 +65,10 @@ public class PlayScreen implements Screen {
         world = new World(new Vector2(0,0), true);
         b2dr = new Box2DDebugRenderer();
 
-        new B2WorldCreator(world, map);
+        B2WorldCreator b2 = new B2WorldCreator(world, map);
+        recList = new ArrayList<>();
+        recList = b2.getRecList();
+
         c1 = new Crewmate(world, this, new Vector2(200, 500));
         cList = new ArrayList<>();
         cList.add(c1);
@@ -131,6 +137,31 @@ public class PlayScreen implements Screen {
 
         for(int i = 0 ; i< bList.size() ; i++){
             if(bList.get(i).check()) bList.remove(i--);
+        }
+
+        Bullet bullet;
+        Rectangle rect;
+        for(int i = 0 ; i< bList.size() ; i++) {
+            bullet = bList.get(i);
+            for (int j = 0; j < recList.size(); j++){
+                rect = recList.get(j);
+                if (bullet.getX() >= rect.getX()-bullet.getWidth() && bullet.getX() <= rect.getX()+rect.getWidth())
+                    if (bullet.getY() >= rect.getY()-bullet.getHeight() && bullet.getY() <= rect.getY()+rect.getHeight())
+                        bList.remove(i--);
+            }
+        }
+
+        Crewmate crewmate;
+        for(int i = 0 ; i< bList.size() ; i++) {
+            bullet = bList.get(i);
+            for (int j = 0; j < cList.size(); j++){
+                crewmate = cList.get(j);
+                if(!c1.equals(crewmate)){
+                    if (bullet.getX() >= crewmate.getX()-bullet.getWidth() && bullet.getX() <= crewmate.getX()+crewmate.getWidth())
+                        if (bullet.getY() >= crewmate.getY()-bullet.getHeight() && bullet.getY() <= crewmate.getY()+crewmate.getHeight())
+                            bList.remove(i--);
+                }
+            }
         }
 
         world.step(1/60f, 6, 2);
