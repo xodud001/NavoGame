@@ -55,7 +55,7 @@ public class LoginScreen implements Screen {
 
         BitmapFont f = new BitmapFont(Gdx.files.internal("font/16Bold/hangulBold16.fnt"));
 
-        title = new Label( "이제 아무꺼나 입력해도 되겠지", new Label.LabelStyle(f, Color.WHITE ));
+        title = new Label( "이제 아무꺼나 입력해도 되겠지", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE ));
 
         idField = new TextField("", textFieldStyle);
         pwField = new TextField("", textFieldStyle);
@@ -79,7 +79,7 @@ public class LoginScreen implements Screen {
         loginBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
                 if(userId.equals(pwField.getText()) && userPw.equals(idField.getText())){
-                    Gdx.graphics.setWindowedMode(1000, 750);
+                    Gdx.graphics.setWindowedMode(800, 600);
                     game.setScreen(new PlayScreen(game));
                 }
             }

@@ -3,9 +3,11 @@ package dev.navo.game.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -44,6 +46,7 @@ public class PlayScreen implements Screen {
 
     private ArrayList<Rectangle> recList;
 
+    ShapeRenderer shapeRenderer;
 
     private String mapType = "Navo32.tmx";
     private static final int moveSpeed = 10;
@@ -52,6 +55,7 @@ public class PlayScreen implements Screen {
     public PlayScreen(NavoGame game){
         atlas = new TextureAtlas("Image.atlas");
 
+        shapeRenderer = new ShapeRenderer();
         this.game = game;
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(NavoGame.V_WIDTH, NavoGame.V_HEIGHT, gameCam);
@@ -72,7 +76,7 @@ public class PlayScreen implements Screen {
         c1 = new Crewmate(world, this, new Vector2(200, 500));
         cList = new ArrayList<>();
         cList.add(c1);
-        for(int i = 0 ; i < 5 ; i++){
+        for(int i = 0 ; i < 1 ; i++){
             Crewmate temp = new Crewmate(world, this, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20));
             cList.add(temp);
         }
@@ -127,7 +131,7 @@ public class PlayScreen implements Screen {
             c1.setAttackDelay(0.3f);//공격 딜레이 설정
         }
 
-        if(Gdx.input.isTouched()) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.C)) {
             c1 = cList.get((int)(Math.random() * cList.size()));
         }
     }
@@ -159,8 +163,10 @@ public class PlayScreen implements Screen {
                 crewmate = cList.get(j);
                 if(!c1.equals(crewmate)){
                     if (bullet.getX() >= crewmate.getX()-bullet.getWidth() && bullet.getX() <= crewmate.getX()+crewmate.getWidth())
-                        if (bullet.getY() >= crewmate.getY()-bullet.getHeight() && bullet.getY() <= crewmate.getY()+crewmate.getHeight())
+                        if (bullet.getY() >= crewmate.getY()-bullet.getHeight() && bullet.getY() <= crewmate.getY()+crewmate.getHeight()) {
                             bList.remove(i--);
+                            crewmate.hit();
+                        }
                 }
             }
         }
@@ -177,6 +183,8 @@ public class PlayScreen implements Screen {
 
 
         hud.showMessage("c1.attackDelay"+ c1.getAttackDelay());
+
+
         gameCam.position.x = c1.b2Body.getPosition().x;
         gameCam.position.y = c1.b2Body.getPosition().y;
 
@@ -184,12 +192,12 @@ public class PlayScreen implements Screen {
         renderer.setView(gameCam);
     }
 
+    // 800 x 600 해상도 기준
     @Override
     public void render(float delta) {
         update(delta);
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         renderer.render();
 
         b2dr.render(world, gameCam.combined);
@@ -203,6 +211,11 @@ public class PlayScreen implements Screen {
         for(Bullet b : bList)
             b.draw(game.batch);
         game.batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(375, 325, 50 * (c1.getHP() / c1.getMaxHP()), 10);
+        shapeRenderer.end();
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();

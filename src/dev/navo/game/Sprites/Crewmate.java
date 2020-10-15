@@ -26,6 +26,8 @@ public class Crewmate  extends Sprite {
     private Animation crewmateLeft;
     private Animation crewmateRight;
 
+    private float maxHP;
+    private float HP;
     private float attackDelay;
 
     private boolean isStop;
@@ -38,6 +40,13 @@ public class Crewmate  extends Sprite {
         return attackDelay;
     }
 
+    public float getMaxHP() { return maxHP;}
+    public float getHP() { return HP;}
+    public void hit() {
+        if(!(HP == 0))
+        this.HP--;
+    }
+
     public void setAttackDelay(float delay){
          this.attackDelay = delay;
     }
@@ -45,6 +54,9 @@ public class Crewmate  extends Sprite {
     public Crewmate(World world, PlayScreen screen, Vector2 v){
         super(screen.getAtlas().findRegion("CrewmateMove"));
         this.world = world;
+        maxHP = 10;
+        HP = 10;
+
         currentState = State.DOWN;
         previousState = State.DOWN;
         stateTimer = 0;
