@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -21,7 +22,7 @@ import dev.navo.game.Tools.FontGenerator;
 public class Hud implements Disposable{
     public Stage stage;
     private Viewport viewport;
-    Label nameLabel;
+//    Label nameLabel;
 
     int count;
     Label posLabel;
@@ -39,19 +40,31 @@ public class Hud implements Disposable{
         table.row();
         table.add(posLabel).expandX();
 
-        nameLabel = new Label("상민이", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE));
-        nameLabel.setFontScale(0.6f);
-        nameLabel.setBounds(174, 167,50, 15 );
-        nameLabel.setAlignment(Align.center);
+//        nameLabel = new Label("상민이", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE));
+//        nameLabel.setFontScale(0.6f);
+//        nameLabel.setColor(Color.BLACK);
+//        nameLabel.setBounds(174, 167,50, 15 );
+//        nameLabel.setAlignment(Align.center);
 
-        stage.addActor(nameLabel);
+//        stage.addActor(nameLabel);
         stage.addActor(table);
     }
 
     public void showMessage(String str){
         posLabel.setText(str);
-        stage.addActor(table);
     }
+
+    public void addLabel(Label label){
+        stage.addActor(label);
+    }
+    public <T> void removeActor(T actor){
+        for(Actor temp : stage.getActors()){
+            if(temp.equals(actor)){
+                temp.remove();
+            }
+        }
+    }
+
     @Override
     public void dispose() {
         stage.dispose();
