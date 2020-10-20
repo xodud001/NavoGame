@@ -15,11 +15,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Tools.FontGenerator;
 
+import java.io.IOException;
+
 
 public class LoginScreen implements Screen {
+
     private static final String userId = "admin";
     private static final String userPw = "admin";
     private boolean isLogin;
@@ -42,11 +46,14 @@ public class LoginScreen implements Screen {
     private Skin skin;
     private Viewport viewport;
 
+    private Client client;
+
     public LoginScreen(final NavoGame game){
         isLogin = false;
         this.game = game;
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+        client = Client.getInstance();
         TextField.TextFieldStyle textFieldStyle = skin.get(TextField.TextFieldStyle.class);
 
         viewport = new FitViewport(NavoGame.V_WIDTH , NavoGame.V_HEIGHT , new OrthographicCamera());
@@ -80,9 +87,13 @@ public class LoginScreen implements Screen {
 
         loginBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
-                if(userId.equals(pwField.getText()) && userPw.equals(idField.getText())){
-                    Gdx.graphics.setWindowedMode(800 , 600 );
-                    game.setScreen(new LobbyScreen(game));
+                try {
+                    if( client.login(idField.getText(), pwField.getText()) ){
+                        Gdx.graphics.setWindowedMode(800 , 600 );
+                        game.setScreen(new LobbyScreen(game));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
