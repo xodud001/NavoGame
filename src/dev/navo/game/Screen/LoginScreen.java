@@ -49,7 +49,7 @@ public class LoginScreen implements Screen {
 
         TextField.TextFieldStyle textFieldStyle = skin.get(TextField.TextFieldStyle.class);
 
-        viewport = new FitViewport(400, 300, new OrthographicCamera());
+        viewport = new FitViewport(NavoGame.V_WIDTH , NavoGame.V_HEIGHT , new OrthographicCamera());
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
@@ -68,21 +68,21 @@ public class LoginScreen implements Screen {
         loginBtn = new TextButton( "LOG IN", skin );
         signUpBtn = new TextButton( "SIGN UP", skin );
 
-        idField.setBounds(125, 150, 150, 25);
+        idField.setBounds(125 , 150 , 150 , 25 );
 
-        pwField.setBounds(125, 120, 150, 25);
-        idLabel.setBounds(80, 150, 45, 25);
-        pwLabel.setBounds(80, 120, 45, 25);
-        title.setBounds(0, 185, 400, 25);
+        pwField.setBounds(125, 120 , 150 , 25 );
+        idLabel.setBounds(80 , 150 , 45 , 25 );
+        pwLabel.setBounds(80 , 120 , 45 , 25 );
+        title.setBounds(0 , 185 , 400 , 25 );
         title.setAlignment(Align.center);
-        loginBtn.setBounds(150, 85, 100, 25);
-        signUpBtn.setBounds(150, 50, 100, 25);
+        loginBtn.setBounds(150 , 85 , 100 , 25 );
+        signUpBtn.setBounds(150 , 50 , 100 , 25 );
 
         loginBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
                 if(userId.equals(pwField.getText()) && userPw.equals(idField.getText())){
-                    Gdx.graphics.setWindowedMode(800, 600);
-                    game.setScreen(new PlayScreen(game));
+                    Gdx.graphics.setWindowedMode(800 , 600 );
+                    game.setScreen(new LobbyScreen(game));
                 }
             }
         });
@@ -105,7 +105,7 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClearColor(255, 255, 255, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
-        game.batch.draw(background, 0, 0);
+        game.batch.draw(background, 0 , 0 );
         game.batch.end();
         stage.draw();
     }
