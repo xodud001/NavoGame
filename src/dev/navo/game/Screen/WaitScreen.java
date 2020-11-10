@@ -1,7 +1,6 @@
 package dev.navo.game.Screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,20 +13,22 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.navo.game.ClientSocket.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
 import dev.navo.game.Sprites.Crewmate;
 import dev.navo.game.Tools.B2WorldCreator;
 import dev.navo.game.Tools.Util;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 
-public class PlayScreen implements Screen {
-    private NavoGame game;
+public class WaitScreen implements Screen {    private NavoGame game;
     private TextureAtlas atlas;
 
     private OrthographicCamera gameCam;
@@ -46,19 +47,20 @@ public class PlayScreen implements Screen {
     private Crewmate myCrewmate;
     private ArrayList<Crewmate> crewmates;
 
-    private ArrayList<Bullet> bullets;
-
     private ArrayList<Rectangle> blocks;
+
     private Vector2 centerHP;
+
+    private Room room;
 
     ShapeRenderer shapeRenderer;
 
-    private String mapType = "Navo32.tmx";
+    private String mapType = "Wait.tmx";
     private static final int moveSpeed = 10;
     private static int maxSpeed = 80;
-    //private static final int maxSpeed = 100;
 
-    public PlayScreen(NavoGame game){
+    public WaitScreen(NavoGame game, JSONObject roomInfo){
+
         atlas = new TextureAtlas("Image.atlas");
         centerHP = new Vector2(375, 325);
         shapeRenderer = new ShapeRenderer();
@@ -70,7 +72,7 @@ public class PlayScreen implements Screen {
         mapLoader = new TmxMapLoader();
         map = mapLoader.load(mapType);
         renderer = new OrthogonalTiledMapRenderer(map);
-        gameCam.position.set(200,1130, 0); // 200, 1130 = Left Top
+        gameCam.position.set(100,100, 0); // 200, 1130 = Left Top
 
         world = new World(new Vector2(0,0), true);
         b2dr = new Box2DDebugRenderer();
@@ -79,96 +81,21 @@ public class PlayScreen implements Screen {
         blocks = new ArrayList<>();
         blocks = b2.getRecList();
 
-        myCrewmate = new Crewmate(world, atlas, new Vector2(200, 500), "상민이", "Purple");
+        System.out.println(roomInfo.toJSONString());
+        room = new Room(world, atlas, roomInfo);
+
+        myCrewmate = new Crewmate(world, atlas, new Vector2(100, 100), "상민이", "Purple");
 
         crewmates = new ArrayList<>();
         crewmates.add(myCrewmate);
         hud.addLabel(myCrewmate.getLabel());
-        for(int i = 1 ; i <= 5 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Red");
-            crewmates.add(temp);
-            hud.addLabel(temp.getLabel());
-        }
-        for(int i = 6 ; i <= 10 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Blue");
-            crewmates.add(temp);
-            hud.addLabel(temp.getLabel());
-        }
-        for(int i = 11 ; i <= 15 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Green");
-            crewmates.add(temp);
-            hud.addLabel(temp.getLabel());
-        }
-        for(int i = 16 ; i <= 20 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Gray");
-            crewmates.add(temp);
-            hud.addLabel(temp.getLabel());
-        }
-        for(int i = 21 ; i <= 25 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Purple");
-            crewmates.add(temp);
-            hud.addLabel(temp.getLabel());
-        }
-        bullets = new ArrayList<>();
 
-    }
-
-    public TextureAtlas getAtlas(){
-        return atlas;
-    }
-
-    @Override
-    public void show() {
-
-    }
-
-    public void handleInput(float dt){
-        Util.moveInputHandle(dt, myCrewmate, maxSpeed, moveSpeed);
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.X) && myCrewmate.getAttackDelay() <= 0){
-            bullets.add(new Bullet(world, this, new Vector2(myCrewmate.getX(), myCrewmate.getY()), myCrewmate.currentState)); // 총알 생성
-            myCrewmate.setAttackDelay(0.3f);//공격 딜레이 설정
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-            myCrewmate = crewmates.get((int)(Math.random() * crewmates.size()));
-        }
     }
 
     public void update(float dt){
-        handleInput(dt);
+        Util.moveInputHandle(dt, myCrewmate, maxSpeed, moveSpeed);
+
         Util.frameSet(world);
-
-        for(int i = 0; i< bullets.size() ; i++){
-            if(bullets.get(i).check()) bullets.remove(i--);
-        }
-
-        Bullet bullet;
-        Rectangle rect;
-        for(int i = 0; i< bullets.size() ; i++) {
-            bullet = bullets.get(i);
-            for (int j = 0; j < blocks.size(); j++){
-                rect = blocks.get(j);
-                if (bullet.getX() >= rect.getX()-bullet.getWidth() && bullet.getX() <= rect.getX()+rect.getWidth())
-                    if (bullet.getY() >= rect.getY()-bullet.getHeight() && bullet.getY() <= rect.getY()+rect.getHeight())
-                        bullets.remove(i--);
-            }
-        }
-
-        Crewmate crewmate;
-        for(int i = 0; i< bullets.size() ; i++) {
-            bullet = bullets.get(i);
-            for (int j = 0; j < crewmates.size(); j++){
-                crewmate = crewmates.get(j);
-                if(!myCrewmate.equals(crewmate)){
-                    if (bullet.getX() >= crewmate.getX()-bullet.getWidth() && bullet.getX() <= crewmate.getX()+crewmate.getWidth())
-                        if (bullet.getY() >= crewmate.getY()-bullet.getHeight() && bullet.getY() <= crewmate.getY()+crewmate.getHeight()) {
-                            bullets.remove(i--);
-                            crewmate.hit();
-                        }
-                }
-            }
-        }
 
         //c1.update(dt);
         for(int i = 0; i < crewmates.size() ; i++){
@@ -181,20 +108,20 @@ public class PlayScreen implements Screen {
             }
             temp.update(dt);
         }
-        for(Bullet b : bullets) {
-            b.update(dt);
-        }
 
         hud.showMessage("c1.velocity"+ myCrewmate.b2Body.getLinearVelocity().toString());
 
-
         gameCam.position.x = myCrewmate.b2Body.getPosition().x;
         gameCam.position.y = myCrewmate.b2Body.getPosition().y;
+
         gameCam.update();
         renderer.setView(gameCam);
     }
+    @Override
+    public void show() {
 
-    // 800 x 600 해상도 기준
+    }
+
     @Override
     public void render(float delta) {
         update(delta);
@@ -229,9 +156,7 @@ public class PlayScreen implements Screen {
                 myCrewmate.getLabel().setPosition(174, 166);
             }
         }
-        for(Bullet b : bullets)
-            b.draw(game.batch);
-
+        room.drawCrewmates(game.batch);
 
         game.batch.end();
 
@@ -248,6 +173,7 @@ public class PlayScreen implements Screen {
 
     @Override
     public void pause() {
+
     }
 
     @Override

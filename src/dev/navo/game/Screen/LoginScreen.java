@@ -98,6 +98,7 @@ public class LoginScreen implements Screen {
                     if( client.login(idField.getText(), pwField.getText()) ){
                         Gdx.graphics.setWindowedMode(800 , 600 );
                         game.setScreen(new LobbyScreen(game));
+                        client.setOwner(idField.getText());
                     }else{
                         resultLabel.setText("로그인 실패!");
                         resultLabel.setVisible(true);
