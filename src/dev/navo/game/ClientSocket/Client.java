@@ -17,9 +17,6 @@ public class Client {
     String serverIPv4 = "127.0.0.1";
     int serverPort = 10002;
 
-    String header = "\"login\"";
-    //String id = "\"xodud\"";
-    //String pw = "\"xodud\"";
 
 //    public static void main(String[] args) {
 //        new Client();
@@ -119,9 +116,55 @@ public class Client {
         }).start();
     }
     public boolean login(String id, String pw) throws IOException {
+        String header = "\"LOGIN\"";
         String login = String.format("{\"Header\":%s,\"id\":%s,\"pw\":%s}", header, String.format("\"%s\"", id), String.format("\"%s\"", pw));
         System.out.println(login);
         out.println(login);
+        String recvData= in.readLine();
+
+        return recvData.equals("SUCCESS");
+    }
+
+    public boolean create(String id, String pw, String name, String birth, String phone) throws IOException {
+        String header = "\"CREATE\"";
+        String create = String.format("{\"Header\":%s,\"id\":%s,\"pw\":%s,\"name\":%s,\"birth\":%s,\"phone\":%s}"
+                , header
+                , String.format("\"%s\"", id)
+                , String.format("\"%s\"", pw)
+                , String.format("\"%s\"", name)
+                , String.format("\"%s\"", birth)
+                , String.format("\"%s\"", phone));
+
+        System.out.println(create);
+        out.println(create);
+        String recvData= in.readLine();
+
+        return recvData.equals("SUCCESS");
+    }
+
+    public boolean idFind(String name, String birth) throws IOException {
+        String header = "\"ID\"";
+        String id = String.format("{\"Header\":%s,\"name\":%s,\"birth\":%s}"
+                , header
+                , String.format("\"%s\"", name)
+                , String.format("\"%s\"", birth));
+
+        System.out.println(id);
+        out.println(id);
+        String recvData= in.readLine();
+
+        return recvData.equals("SUCCESS");
+    }
+
+    public boolean pwFind(String id, String name) throws IOException {
+        String header = "\"ID\"";
+        String pw = String.format("{\"Header\":%s,\"id\":%s,\"name\":%s}"
+                , header
+                , String.format("\"%s\"", id)
+                , String.format("\"%s\"", name));
+
+        System.out.println(pw);
+        out.println(pw);
         String recvData= in.readLine();
 
         return recvData.equals("SUCCESS");

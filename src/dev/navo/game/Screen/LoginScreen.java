@@ -39,6 +39,7 @@ public class LoginScreen implements Screen {
 
     private TextButton loginBtn;
     private TextButton signUpBtn;
+    private TextButton IdPwFindBtn;
 
     private NavoGame game;
     private Stage stage;
@@ -74,16 +75,17 @@ public class LoginScreen implements Screen {
         pwLabel = new Label("PW : ", new Label.LabelStyle(f, Color.WHITE));
         loginBtn = new TextButton( "LOG IN", skin );
         signUpBtn = new TextButton( "SIGN UP", skin );
+        IdPwFindBtn = new TextButton( "Forgot ID/PW", skin );
 
         idField.setBounds(125 , 150 , 150 , 25 );
-
         pwField.setBounds(125, 120 , 150 , 25 );
         idLabel.setBounds(80 , 150 , 45 , 25 );
         pwLabel.setBounds(80 , 120 , 45 , 25 );
         title.setBounds(0 , 185 , 400 , 25 );
         title.setAlignment(Align.center);
-        loginBtn.setBounds(150 , 85 , 100 , 25 );
-        signUpBtn.setBounds(150 , 50 , 100 , 25 );
+        loginBtn.setBounds(135 , 85 , 130 , 25 );
+        signUpBtn.setBounds(135 , 50 , 130 , 25 );
+        IdPwFindBtn.setBounds(135 , 15 , 130 , 25 );
 
         loginBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
@@ -97,6 +99,17 @@ public class LoginScreen implements Screen {
                 }
             }
         });
+        signUpBtn.addListener(new ClickListener(){
+            public void clicked (InputEvent event, float x, float y) {
+                game.setScreen(new SignUpScreen(game));
+            }
+        });
+
+        IdPwFindBtn.addListener(new ClickListener(){
+            public void clicked (InputEvent event, float x, float y) {
+                game.setScreen(new IdPwFindScreen(game));
+            }
+        });
         stage.addActor(idField);
         stage.addActor(pwField);
         stage.addActor(idLabel);
@@ -104,6 +117,7 @@ public class LoginScreen implements Screen {
         stage.addActor(title);
         stage.addActor(loginBtn);
         stage.addActor(signUpBtn);
+        stage.addActor(IdPwFindBtn);
 
     }
     @Override
