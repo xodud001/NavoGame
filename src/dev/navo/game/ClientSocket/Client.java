@@ -142,7 +142,7 @@ public class Client {
         return recvData.equals("SUCCESS");
     }
 
-    public boolean idFind(String name, String birth) throws IOException {
+    public String idFind(String name, String birth) throws IOException {
         String header = "\"ID\"";
         String id = String.format("{\"Header\":%s,\"name\":%s,\"birth\":%s}"
                 , header
@@ -151,13 +151,16 @@ public class Client {
 
         System.out.println(id);
         out.println(id);
-        String recvData= in.readLine();
+        String result = in.readLine();
+        if(result.equals("FAIL"))
+            return null;
+        else
+            return result;
 
-        return recvData.equals("SUCCESS");
     }
 
-    public boolean pwFind(String id, String name) throws IOException {
-        String header = "\"ID\"";
+    public String pwFind(String id, String name) throws IOException {
+        String header = "\"PW\"";
         String pw = String.format("{\"Header\":%s,\"id\":%s,\"name\":%s}"
                 , header
                 , String.format("\"%s\"", id)
@@ -165,9 +168,12 @@ public class Client {
 
         System.out.println(pw);
         out.println(pw);
-        String recvData= in.readLine();
 
-        return recvData.equals("SUCCESS");
+        String result = in.readLine();
+        if(result.equals("FAIL"))
+            return null;
+        else
+            return result;
     }
 }
 

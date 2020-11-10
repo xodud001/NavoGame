@@ -41,6 +41,11 @@ public class LoginScreen implements Screen {
     private TextButton signUpBtn;
     private TextButton IdPwFindBtn;
 
+    // 결과
+    private TextField resultField;
+    private Label resultLabel;
+    private TextButton resultBtn;
+
     private NavoGame game;
     private Stage stage;
 
@@ -93,6 +98,11 @@ public class LoginScreen implements Screen {
                     if( client.login(idField.getText(), pwField.getText()) ){
                         Gdx.graphics.setWindowedMode(800 , 600 );
                         game.setScreen(new LobbyScreen(game));
+                    }else{
+                        resultLabel.setText("로그인 실패!");
+                        resultLabel.setVisible(true);
+                        resultField.setVisible(true);
+                        resultBtn.setVisible(true);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -110,6 +120,27 @@ public class LoginScreen implements Screen {
                 game.setScreen(new IdPwFindScreen(game));
             }
         });
+
+        resultField = new TextField("", skin);
+        resultField.setBounds(40, 30, 320, 240);
+        resultField.setDisabled(true);
+        resultLabel = new Label("", new Label.LabelStyle(FontGenerator.font32, Color.WHITE));
+        resultLabel.setBounds(40, 150, 320, 25);
+        resultLabel.setAlignment(Align.center);
+        resultBtn = new TextButton( "OK", skin );
+        resultBtn.setBounds(160, 50, 80, 25);
+        resultField.setVisible(false);
+        resultLabel.setVisible(false);
+        resultBtn.setVisible(false);
+
+        resultBtn.addListener(new ClickListener(){
+            public void clicked (InputEvent event, float x, float y) {
+                resultField.setVisible(false);
+                resultLabel.setVisible(false);
+                resultBtn.setVisible(false);
+            }
+        });
+
         stage.addActor(idField);
         stage.addActor(pwField);
         stage.addActor(idLabel);
@@ -118,6 +149,10 @@ public class LoginScreen implements Screen {
         stage.addActor(loginBtn);
         stage.addActor(signUpBtn);
         stage.addActor(IdPwFindBtn);
+
+        stage.addActor(resultField);
+        stage.addActor(resultLabel);
+        stage.addActor(resultBtn);
 
     }
     @Override
