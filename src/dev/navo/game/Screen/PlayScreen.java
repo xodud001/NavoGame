@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
@@ -79,33 +80,33 @@ public class PlayScreen implements Screen {
         blocks = new ArrayList<>();
         blocks = b2.getRecList();
 
-        myCrewmate = new Crewmate(world, atlas, new Vector2(200, 500), "상민이", "Purple");
+        myCrewmate = new Crewmate(world, atlas, new Vector2(200, 500), "상민이", "Purple", Client.getInstance().getOwner());
 
         crewmates = new ArrayList<>();
         crewmates.add(myCrewmate);
         hud.addLabel(myCrewmate.getLabel());
         for(int i = 1 ; i <= 5 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Red");
+            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Red", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 6 ; i <= 10 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Blue");
+            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Blue", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 11 ; i <= 15 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Green");
+            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Green", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 16 ; i <= 20 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Gray");
+            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Gray", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 21 ; i <= 25 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Purple");
+            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Purple", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }

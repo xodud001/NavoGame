@@ -1,5 +1,8 @@
 package dev.navo.game.ClientSocket;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.physics.box2d.World;
+import dev.navo.game.Sprites.Crewmate;
 import dev.navo.game.Tools.JsonParser;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -59,6 +62,12 @@ public class Client {
         }
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+    public String getOwner() {
+        return this.owner;
+    }
 
     public void dataRecv() {
         new Thread(new Runnable() {
@@ -88,34 +97,34 @@ public class Client {
         }).start();
     }
 
-    public void dataSend() {
+
+    public void update(final Crewmate user, final Room room, final World world, final TextureAtlas atlas) {
         new Thread(new Runnable() {
-            Scanner input=new Scanner(System.in);
+            int i = 0;
             boolean isThread=true;
             @Override
             public void run() {
-                while(isThread)
+                while(isThread){
+                    JSONObject json = user.getCrewmateJson();
+                    json.put("Header", "UPDATE");
+
+                    out.println(json.toJSONString());
+
+                    String result = null;
                     try {
-                        String sendData=input.nextLine();
-                        if(sendData.equals("/quit"))
-                            isThread=false;
-                        else {
-                            //String login = String.format("{\"Header\":%s,\"id\":%s,\"pw\":%s}", header, id, pw);
-                            //System.out.println(login);
-                            out.println(sendData);
+                        result = in.readLine();
+                        JSONObject roomJson = null;
+                        if(result != null)
+                            roomJson = JsonParser.createJson(result);
+                        if(roomJson != null){
+                            System.out.println(roomJson.toJSONString());
+                            room.roomUpdate(roomJson, world, atlas);
+                            Thread.sleep(100);
                         }
+                    } catch (IOException | ParseException | InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    catch (Exception e) {
-                        System.out.println(e.toString());
-                        try {
-                            if(clientSocket != null)
-                                clientSocket.close();
-                            out.close();
-                        } catch (IOException ioE) {
-                            ioE.printStackTrace();
-                        }
-                        isThread = false;
-                    }
+                }
             }
         }).start();
     }
@@ -190,10 +199,10 @@ public class Client {
         out.println(json.toJSONString());
     }
 
-    public JSONObject enter() throws IOException, ParseException {
+    public JSONObject enter(String owner) throws IOException, ParseException {
         JSONObject json = new JSONObject();
         json.put("Header", "ENTER");
-        json.put("owner", this.owner);
+        json.put("owner", owner);
 
 
         System.out.println(json.toJSONString());
@@ -203,9 +212,6 @@ public class Client {
         return JsonParser.createJson(result);
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
 }
 
 

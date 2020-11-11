@@ -64,7 +64,7 @@ public class LobbyScreen implements Screen {
         startBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
                 try {
-                    JSONObject roomInfo = client.enter();
+                    JSONObject roomInfo = client.enter(client.getOwner());
                     startBtn.clear();
                     backBtn.clear();
                     game.setScreen(new WaitScreen(game, roomInfo));

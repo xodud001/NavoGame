@@ -17,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.ClientSocket.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
@@ -25,7 +26,9 @@ import dev.navo.game.Sprites.Crewmate;
 import dev.navo.game.Tools.B2WorldCreator;
 import dev.navo.game.Tools.Util;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class WaitScreen implements Screen {    private NavoGame game;
@@ -55,12 +58,13 @@ public class WaitScreen implements Screen {    private NavoGame game;
 
     ShapeRenderer shapeRenderer;
 
+    Client client;
     private String mapType = "Wait.tmx";
     private static final int moveSpeed = 10;
     private static int maxSpeed = 80;
 
     public WaitScreen(NavoGame game, JSONObject roomInfo){
-
+        client = Client.getInstance();
         atlas = new TextureAtlas("Image.atlas");
         centerHP = new Vector2(375, 325);
         shapeRenderer = new ShapeRenderer();
@@ -84,32 +88,22 @@ public class WaitScreen implements Screen {    private NavoGame game;
         System.out.println(roomInfo.toJSONString());
         room = new Room(world, atlas, roomInfo);
 
-        myCrewmate = new Crewmate(world, atlas, new Vector2(100, 100), "상민이", "Purple");
+        myCrewmate = new Crewmate(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
 
         crewmates = new ArrayList<>();
         crewmates.add(myCrewmate);
         hud.addLabel(myCrewmate.getLabel());
-
+        client.update(myCrewmate, room, world, atlas);
     }
 
-    public void update(float dt){
+    public void update(float dt) throws IOException, ParseException {
         Util.moveInputHandle(dt, myCrewmate, maxSpeed, moveSpeed);
 
         Util.frameSet(world);
 
+        myCrewmate.update(dt);
         //c1.update(dt);
-        for(int i = 0; i < crewmates.size() ; i++){
-            Crewmate temp = crewmates.get(i);
-            if(temp.getHP() == 0){
-                world.destroyBody(temp.b2Body);
-                hud.removeActor(temp.getLabel());
-                crewmates.remove(i--);
-                continue;
-            }
-            temp.update(dt);
-        }
-
-        hud.showMessage("c1.velocity"+ myCrewmate.b2Body.getLinearVelocity().toString());
+        hud.showMessage("Room Code : "+ room.getRoomCode());
 
         gameCam.position.x = myCrewmate.b2Body.getPosition().x;
         gameCam.position.y = myCrewmate.b2Body.getPosition().y;
@@ -124,7 +118,12 @@ public class WaitScreen implements Screen {    private NavoGame game;
 
     @Override
     public void render(float delta) {
-        update(delta);
+        try {
+            update(delta);
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -156,7 +155,7 @@ public class WaitScreen implements Screen {    private NavoGame game;
                 myCrewmate.getLabel().setPosition(174, 166);
             }
         }
-        room.drawCrewmates(game.batch);
+        room.drawCrewmates(game.batch, myCrewmate);
 
         game.batch.end();
 

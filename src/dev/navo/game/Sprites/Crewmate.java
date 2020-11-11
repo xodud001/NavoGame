@@ -39,11 +39,26 @@ public class Crewmate  extends Sprite {
     private boolean isStop;
     private float stateTimer;
 
+    public void updateInfo(JSONObject crewmateJson) {
+        setPosition(Integer.parseInt(crewmateJson.get("x").toString()) - 11
+                ,Integer.parseInt(crewmateJson.get("y").toString())-12);
+
+        this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
+        this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
+        this.isStop = crewmateJson.get("isStop").toString().equals("true");
+        this.stateTimer = Float.parseFloat(crewmateJson.get("stateTimer").toString());
+
+        this.name = crewmateJson.get("name").toString();
+        this.color = crewmateJson.get("color").toString();
+        this.currentState = this.previousState = State.valueOf(crewmateJson.get("state").toString()) ;
+    }
+
     public enum State { UP, DOWN, LEFT, RIGHT };
     public State currentState;
     public State previousState;
 
     private final static float frameDuration = (float) 0.2;
+
     public float getStateTimer(){
         return stateTimer;
     }
@@ -92,8 +107,10 @@ public class Crewmate  extends Sprite {
         setRegion(crewmateFrontStand);
     }
 
-    public Crewmate(World world, TextureAtlas atlas, Vector2 v, String name, String color){
+    public Crewmate(World world, TextureAtlas atlas, Vector2 v, String name, String color, String owner){
         super(atlas.findRegion(color));
+
+        this.owner = owner;
         this.world = world;
         this.maxHP = 10;
         this.HP = 10;
@@ -267,4 +284,5 @@ public class Crewmate  extends Sprite {
 
         return result;
     }
+
 }

@@ -9,6 +9,8 @@ import org.json.simple.JSONObject;
 import java.util.ArrayList;
 
 public class Room { // 게임 방
+
+
     int roomCode;
     ArrayList<Crewmate> crewmates;
 
@@ -24,9 +26,36 @@ public class Room { // 게임 방
         }
     }
 
-    public void drawCrewmates(SpriteBatch batch){
+    public void drawCrewmates(SpriteBatch batch, Crewmate user){
         for(Crewmate crewmate : crewmates){
-            crewmate.draw(batch);
+            if(!user.owner.equals(crewmate.owner))
+                crewmate.draw(batch);
         }
+    }
+
+    public int getRoomCode(){
+        return roomCode;
+    }
+    public void roomUpdate(JSONObject roomInfo, World world, TextureAtlas atlas){
+        if(this.roomCode == Integer.parseInt(roomInfo.get("code").toString()) ){
+            JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
+            int i=0;
+            while(crewmatesJson.get("" + i) != null){
+                for(Crewmate crewmate : crewmates){
+                    JSONObject temp = (JSONObject)crewmatesJson.get("" + i);
+                    if(temp != null && crewmate.owner.equals(temp.get("owner"))){
+                        crewmate.updateInfo(temp);
+                        i++;
+                        break;
+                    }
+                }
+                //addCrewmate( (JSONObject)crewmatesJson.get("" + i) , world, atlas);
+                i++;
+            }
+        }
+    }
+
+    public void addCrewmate(JSONObject crewmateJson, World world, TextureAtlas atlas){
+        crewmates.add(new Crewmate(world, atlas, crewmateJson));
     }
 }

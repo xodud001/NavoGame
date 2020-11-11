@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.NavoGame;
+import dev.navo.game.Sprites.Crewmate;
 import dev.navo.game.Tools.FontGenerator;
 
 import java.io.IOException;
