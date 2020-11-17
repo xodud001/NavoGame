@@ -2,7 +2,7 @@ package dev.navo.game.ClientSocket;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
-import dev.navo.game.Sprites.Crewmate;
+import dev.navo.game.Sprites.Crewmate2D;
 import dev.navo.game.Tools.JsonParser;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 @SuppressWarnings("unchecked")
 public class Client {
@@ -45,6 +44,8 @@ public class Client {
     public void connect() {
         try{
             clientSocket=new Socket(serverIPv4, serverPort);
+            clientSocket.setTcpNoDelay(true);
+            clientSocket.setSoLinger(false, 0);
             System.out.println("[Client] Connected to server");
         }
         catch(Exception e) {
@@ -98,7 +99,7 @@ public class Client {
     }
 
 
-    public void update(final Crewmate user, final Room room, final World world, final TextureAtlas atlas) {
+    public void update(final Crewmate2D user, final Room room, final World world, final TextureAtlas atlas) {
         new Thread(new Runnable() {
             int i = 0;
             boolean isThread=true;
@@ -119,7 +120,7 @@ public class Client {
                         if(roomJson != null){
                             System.out.println(roomJson.toJSONString());
                             room.roomUpdate(roomJson, world, atlas);
-                            Thread.sleep(100);
+                            Thread.sleep(200);
                         }
                     } catch (IOException | ParseException | InterruptedException e) {
                         e.printStackTrace();

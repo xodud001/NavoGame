@@ -21,7 +21,7 @@ import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
-import dev.navo.game.Sprites.Crewmate;
+import dev.navo.game.Sprites.Crewmate2D;
 import dev.navo.game.Tools.B2WorldCreator;
 import dev.navo.game.Tools.Util;
 
@@ -44,8 +44,8 @@ public class PlayScreen implements Screen {
     private World world;
     private Box2DDebugRenderer b2dr;
 
-    private Crewmate myCrewmate;
-    private ArrayList<Crewmate> crewmates;
+    private Crewmate2D myCrewmate;
+    private ArrayList<Crewmate2D> crewmates;
 
     private ArrayList<Bullet> bullets;
 
@@ -80,33 +80,33 @@ public class PlayScreen implements Screen {
         blocks = new ArrayList<>();
         blocks = b2.getRecList();
 
-        myCrewmate = new Crewmate(world, atlas, new Vector2(200, 500), "상민이", "Purple", Client.getInstance().getOwner());
+        myCrewmate = new Crewmate2D(world, atlas, new Vector2(200, 500), "상민이", "Purple", Client.getInstance().getOwner());
 
         crewmates = new ArrayList<>();
         crewmates.add(myCrewmate);
         hud.addLabel(myCrewmate.getLabel());
         for(int i = 1 ; i <= 5 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Red", "temp");
+            Crewmate2D temp = new Crewmate2D(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Red", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 6 ; i <= 10 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Blue", "temp");
+            Crewmate2D temp = new Crewmate2D(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Blue", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 11 ; i <= 15 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Green", "temp");
+            Crewmate2D temp = new Crewmate2D(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Green", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 16 ; i <= 20 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Gray", "temp");
+            Crewmate2D temp = new Crewmate2D(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Gray", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
         for(int i = 21 ; i <= 25 ; i++){
-            Crewmate temp = new Crewmate(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Purple", "temp");
+            Crewmate2D temp = new Crewmate2D(world, atlas, new Vector2((int)(Math.random()*1560) + 20, (int)(Math.random()*960) + 20), "상민이" + i,"Purple", "temp");
             crewmates.add(temp);
             hud.addLabel(temp.getLabel());
         }
@@ -134,6 +134,9 @@ public class PlayScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.C)) {
             myCrewmate = crewmates.get((int)(Math.random() * crewmates.size()));
         }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new LobbyScreen(game));
+        }
     }
 
     public void update(float dt){
@@ -156,7 +159,7 @@ public class PlayScreen implements Screen {
             }
         }
 
-        Crewmate crewmate;
+        Crewmate2D crewmate;
         for(int i = 0; i< bullets.size() ; i++) {
             bullet = bullets.get(i);
             for (int j = 0; j < crewmates.size(); j++){
@@ -173,7 +176,7 @@ public class PlayScreen implements Screen {
 
         //c1.update(dt);
         for(int i = 0; i < crewmates.size() ; i++){
-            Crewmate temp = crewmates.get(i);
+            Crewmate2D temp = crewmates.get(i);
             if(temp.getHP() == 0){
                 world.destroyBody(temp.b2Body);
                 hud.removeActor(temp.getLabel());
@@ -217,7 +220,7 @@ public class PlayScreen implements Screen {
         myCrewmate.draw(game.batch);
         shapeRenderer.rect(centerHP.x ,centerHP.y, 50 * (myCrewmate.getHP() / myCrewmate.getMaxHP()), 10);
 
-        for(Crewmate c : crewmates) {
+        for(Crewmate2D c : crewmates) {
             c.draw(game.batch);
             if(!c.equals(myCrewmate)) {
                 shapeRenderer.rect(centerHP.x + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x) * 2,

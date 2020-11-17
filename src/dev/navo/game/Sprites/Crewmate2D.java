@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import dev.navo.game.Tools.FontGenerator;
 import org.json.simple.JSONObject;
 
-public class Crewmate  extends Sprite {
+public class Crewmate2D extends Sprite{
 
     public World world;
     public Body b2Body;
@@ -39,19 +39,8 @@ public class Crewmate  extends Sprite {
     private boolean isStop;
     private float stateTimer;
 
-    public void updateInfo(JSONObject crewmateJson) {
-        setPosition(Integer.parseInt(crewmateJson.get("x").toString()) - 11
-                ,Integer.parseInt(crewmateJson.get("y").toString())-12);
-
-        this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
-        this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
-        this.isStop = crewmateJson.get("isStop").toString().equals("true");
-        this.stateTimer = Float.parseFloat(crewmateJson.get("stateTimer").toString());
-
-        this.name = crewmateJson.get("name").toString();
-        this.color = crewmateJson.get("color").toString();
-        this.currentState = this.previousState = State.valueOf(crewmateJson.get("state").toString()) ;
-    }
+    private float drmX;
+    private float drmY;
 
     public enum State { UP, DOWN, LEFT, RIGHT };
     public State currentState;
@@ -59,55 +48,29 @@ public class Crewmate  extends Sprite {
 
     private final static float frameDuration = (float) 0.2;
 
+    //Getter
     public float getStateTimer(){
         return stateTimer;
     }
+
     public float getAttackDelay(){
         return attackDelay;
     }
-
     public float getMaxHP() { return maxHP;}
     public float getHP() { return HP;}
-    public void hit() {
-        if(HP != 0) this.HP--;
-    }
     public Label getLabel(){
         return nameLabel;
     }
 
+    //Setter
+    public void hit() {
+        if(HP != 0) this.HP--;
+    }
     public void setAttackDelay(float delay){
-         this.attackDelay = delay;
+        this.attackDelay = delay;
     }
 
-    public Crewmate(World world, TextureAtlas atlas, JSONObject crewmateJson) {
-        super(atlas.findRegion(crewmateJson.get("color").toString()));
-        this.world = world;
-        this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
-        this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
-        this.color = crewmateJson.get("color").toString();
-        this.name = crewmateJson.get("name").toString();
-
-        nameLabel = new Label(name, new Label.LabelStyle(FontGenerator.font32, Color.WHITE));
-        nameLabel.setWidth(50);
-        nameLabel.setHeight(15);
-        nameLabel.setFontScale(0.25f);
-        nameLabel.setAlignment(Align.center);
-
-        owner = crewmateJson.get("owner").toString();
-        isStop = crewmateJson.get("isStop").toString().equals("true");
-
-        currentState = previousState = State.valueOf(crewmateJson.get("state").toString()) ;
-        stateTimer = Float.parseFloat(crewmateJson.get("stateTimer").toString());
-        initFrame();
-
-        setBounds( Integer.parseInt(crewmateJson.get("x").toString()) - 11
-                , Integer.parseInt(crewmateJson.get("y").toString())-12
-                , 20
-                , 25);
-        setRegion(crewmateFrontStand);
-    }
-
-    public Crewmate(World world, TextureAtlas atlas, Vector2 v, String name, String color, String owner){
+    public Crewmate2D(World world, TextureAtlas atlas, Vector2 v, String name, String color, String owner){
         super(atlas.findRegion(color));
 
         this.owner = owner;
@@ -122,7 +85,6 @@ public class Crewmate  extends Sprite {
         nameLabel.setFontScale(0.25f);
         nameLabel.setAlignment(Align.center);
 
-
         currentState = State.DOWN;
         previousState = State.DOWN;
         stateTimer = 0;
@@ -135,6 +97,7 @@ public class Crewmate  extends Sprite {
         setRegion(crewmateFrontStand);
     }
 
+    //캐릭터 움직임 프레임 초기화
     private void initFrame(){
         int regionX = getImageStartX(color);
         Array<TextureRegion> frames = new Array<>();
@@ -168,6 +131,7 @@ public class Crewmate  extends Sprite {
         crewmateRightStand = new TextureRegion(getTexture(), regionX, 12, 20, 25);
     }
 
+    //색별로 Atlas에서 어디 부분 가져올지 정하는 코드
     private int getImageStartX(String color) {
         switch (color) {
             case "Blue":
@@ -182,7 +146,7 @@ public class Crewmate  extends Sprite {
                 return 361;
         }
     }
-
+    // 2D 엔진 적용된 바디 생성
     public void defineCrewmate(Vector2 v){
         BodyDef bDef = new BodyDef();
         bDef.position.set(v.x,v.y);
@@ -197,13 +161,17 @@ public class Crewmate  extends Sprite {
         b2Body.createFixture(fDef);
     }
 
+    // 업데이트
     public void update(float dt){
         if(attackDelay > 0) attackDelay -= dt;
-
+        drmX = b2Body.getLinearVelocity().x * dt;
+        drmY = b2Body.getLinearVelocity().y * dt;
         setPosition(b2Body.getPosition().x - getWidth() /2 -1, b2Body.getPosition().y - getHeight() / 2);
+
         setRegion(getFrame(dt));
     }
 
+    //프레임 받아오기
     public TextureRegion getFrame(float dt){
         currentState = getState();
         TextureRegion region;
@@ -251,6 +219,7 @@ public class Crewmate  extends Sprite {
         return region;
     }
 
+    //현재 스테이트 없데이트
     public State getState(){
         isStop = false;
         if(b2Body.getLinearVelocity().x > 0)
@@ -267,6 +236,7 @@ public class Crewmate  extends Sprite {
         }
     }
 
+    //크루메이트 정보 JSON으로 출력
     @SuppressWarnings("unchecked")
     public JSONObject getCrewmateJson(){
         JSONObject result = new JSONObject();
@@ -274,6 +244,8 @@ public class Crewmate  extends Sprite {
         result.put("owner", owner);
         result.put("x", getX());
         result.put("y", getY());
+        result.put("drmX", drmX);
+        result.put("drmY", drmY);
         result.put("name", name);
         result.put("color", color);
         result.put("state", currentState.toString());
@@ -281,8 +253,34 @@ public class Crewmate  extends Sprite {
         result.put("HP", HP);
         result.put("isStop", isStop);
         result.put("stateTimer", stateTimer);
-
+        result.put("frameNum", getFrameNum());
         return result;
     }
 
+    private int getFrameNum() {
+        int move = (int)(stateTimer / 0.2F)+1;
+        if(currentState == State.RIGHT){
+            if(isStop)
+                return 0;
+            else
+                return move;
+        }else if(currentState == State.LEFT) {
+            if(isStop)
+                return 4;
+            else
+                return 4+move;
+        }else if(currentState == State.DOWN) {
+            if(isStop)
+                return 8;
+            else
+                return 8+move;
+        }else if(currentState == State.UP) {
+            if(isStop)
+                return 12;
+            else
+                return 12+move;
+        }else{
+            return 0;
+        }
+    }
 }

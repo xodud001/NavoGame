@@ -1,6 +1,7 @@
 package dev.navo.game.Screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -21,8 +22,8 @@ import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.ClientSocket.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
-import dev.navo.game.Sprites.Bullet;
-import dev.navo.game.Sprites.Crewmate;
+import dev.navo.game.Sprites.Crewmate2D;
+import dev.navo.game.Sprites.CrewmateMulti;
 import dev.navo.game.Tools.B2WorldCreator;
 import dev.navo.game.Tools.Util;
 import org.json.simple.JSONObject;
@@ -47,8 +48,7 @@ public class WaitScreen implements Screen {    private NavoGame game;
     private World world;
     private Box2DDebugRenderer b2dr;
 
-    private Crewmate myCrewmate;
-    private ArrayList<Crewmate> crewmates;
+    private Crewmate2D myCrewmate;
 
     private ArrayList<Rectangle> blocks;
 
@@ -88,20 +88,30 @@ public class WaitScreen implements Screen {    private NavoGame game;
         System.out.println(roomInfo.toJSONString());
         room = new Room(world, atlas, roomInfo);
 
-        myCrewmate = new Crewmate(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
+        myCrewmate = new Crewmate2D(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
 
-        crewmates = new ArrayList<>();
-        crewmates.add(myCrewmate);
         hud.addLabel(myCrewmate.getLabel());
         client.update(myCrewmate, room, world, atlas);
     }
+    public void handleInput(float dt){
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            game.setScreen(new PlayScreen(game));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new LobbyScreen(game));
+        }
+    }
 
     public void update(float dt) throws IOException, ParseException {
+        handleInput(dt);
         Util.moveInputHandle(dt, myCrewmate, maxSpeed, moveSpeed);
-
         Util.frameSet(world);
 
         myCrewmate.update(dt);
+        for(CrewmateMulti c :  room.getCrewmates()){
+            c.update(dt);
+        }
         //c1.update(dt);
         hud.showMessage("Room Code : "+ room.getRoomCode());
 
@@ -110,6 +120,8 @@ public class WaitScreen implements Screen {    private NavoGame game;
 
         gameCam.update();
         renderer.setView(gameCam);
+
+
     }
     @Override
     public void show() {
@@ -139,23 +151,21 @@ public class WaitScreen implements Screen {    private NavoGame game;
         game.batch.setProjectionMatrix(gameCam.combined);
 
         game.batch.begin();
-        myCrewmate.draw(game.batch);
-        shapeRenderer.rect(centerHP.x ,centerHP.y, 50 * (myCrewmate.getHP() / myCrewmate.getMaxHP()), 10);
 
-        for(Crewmate c : crewmates) {
-            c.draw(game.batch);
-            if(!c.equals(myCrewmate)) {
-                shapeRenderer.rect(centerHP.x + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x) * 2,
-                        centerHP.y + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y) * 2, 50 * (c.getHP() / c.getMaxHP()), 10);
+        room.drawCrewmates(game.batch, myCrewmate.owner);
 
-                c.getLabel().setPosition(174 + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x),
-                        165 + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y));
-
-            }else{
-                myCrewmate.getLabel().setPosition(174, 166);
+        for(CrewmateMulti c : room.getCrewmates()) {
+            if(!myCrewmate.owner.equals(c.owner)) {
+                shapeRenderer.rect(centerHP.x + (c.getX() - myCrewmate.getX()) * 2,
+                        centerHP.y + (c.getY() - myCrewmate.getY()) * 2, 50 * (c.getHP() / c.getMaxHP()), 10);
+                c.getLabel().setPosition(174 + (c.getX() - myCrewmate.getX()),
+                        165 + (c.getY() - myCrewmate.getY()));
             }
         }
-        room.drawCrewmates(game.batch, myCrewmate);
+
+        myCrewmate.draw(game.batch);
+        shapeRenderer.rect(centerHP.x ,centerHP.y, 50 * (myCrewmate.getHP() / myCrewmate.getMaxHP()), 10);
+        myCrewmate.getLabel().setPosition(174, 166);
 
         game.batch.end();
 
