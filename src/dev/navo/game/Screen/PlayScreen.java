@@ -3,6 +3,7 @@ package dev.navo.game.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -21,14 +22,20 @@ import dev.navo.game.ClientSocket.Client;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
-import dev.navo.game.Sprites.Crewmate2D;
-import dev.navo.game.Sprites.*;
+import dev.navo.game.Sprites.Character.Crewmate2D;
+import dev.navo.game.Sprites.Items.HpItem;
+import dev.navo.game.Sprites.Items.ItemSample;
+import dev.navo.game.Sprites.Items.SpeedItem;
+import dev.navo.game.Sprites.Items.TrapItem;
 import dev.navo.game.Tools.B2WorldCreator;
 import dev.navo.game.Tools.Util;
 
 import java.util.ArrayList;
 
 public class PlayScreen implements Screen {
+
+    private Sound gunShotSound;
+
     private NavoGame game;
     private TextureAtlas atlas, item;
 
@@ -90,6 +97,8 @@ public class PlayScreen implements Screen {
         renderer = new OrthogonalTiledMapRenderer(map);
         gameCam.position.set(200, 1130, 0); // 200, 1130 = Left Top
 
+        gunShotSound = Gdx.audio.newSound(Gdx.files.internal("sound/gunshot.wav")); // 총알 발사 사운드
+
         centerHP = new Vector2(375, 325);
         hud = new Hud(game.batch);
 
@@ -118,9 +127,10 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput ( float dt){
-        Util.moveInputHandle(dt, myCrewmate, maxSpeed, moveSpeed);
+        Util.moveInputHandle(myCrewmate, maxSpeed, moveSpeed);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.X) && myCrewmate.getAttackDelay() <= 0) {
+            gunShotSound.play();
             bullets.add(new Bullet(world, this, new Vector2(myCrewmate.getX(), myCrewmate.getY()), myCrewmate.currentState)); // 총알 생성
             myCrewmate.setAttackDelay(0.3f);//공격 딜레이 설정
         }
@@ -380,20 +390,21 @@ public class PlayScreen implements Screen {
         game.batch.begin();
         myCrewmate.draw(game.batch);
         shapeRenderer.rect(centerHP.x, centerHP.y, 50 * (myCrewmate.getHP() / myCrewmate.getMaxHP()), 10);
+        myCrewmate.getLabel().setPosition(174, 166);
 
-        for (Crewmate2D c : crewmates) {
-            c.draw(game.batch);
-            if (!c.equals(myCrewmate)) {
-                shapeRenderer.rect(centerHP.x + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x) * 2,
-                        centerHP.y + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y) * 2, 50 * (c.getHP() / c.getMaxHP()), 10);
-
-                c.getLabel().setPosition(174 + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x),
-                        165 + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y));
-
-            } else {
-                myCrewmate.getLabel().setPosition(174, 166);
-            }
-        }
+//        for (Crewmate2D c : crewmates) {
+//            c.draw(game.batch);
+//            if (!c.equals(myCrewmate)) {
+//                shapeRenderer.rect(centerHP.x + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x) * 2,
+//                        centerHP.y + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y) * 2, 50 * (c.getHP() / c.getMaxHP()), 10);
+//
+//                c.getLabel().setPosition(174 + (c.b2Body.getPosition().x - myCrewmate.b2Body.getPosition().x),
+//                        165 + (c.b2Body.getPosition().y - myCrewmate.b2Body.getPosition().y));
+//
+//            } else {
+//                myCrewmate.getLabel().setPosition(174, 166);
+//            }
+//        }
         for (Bullet b : bullets)
             b.draw(game.batch);
 
@@ -444,7 +455,6 @@ public class PlayScreen implements Screen {
     public void pause () {
 
     }
-
     @Override
     public void show () {
     }

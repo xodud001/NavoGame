@@ -1,4 +1,4 @@
-package dev.navo.game.Sprites;
+package dev.navo.game.Sprites.Items;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;

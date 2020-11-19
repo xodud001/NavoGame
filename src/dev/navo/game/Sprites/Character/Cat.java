@@ -1,4 +1,4 @@
-package dev.navo.game.Sprites;
+package dev.navo.game.Sprites.Character;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;

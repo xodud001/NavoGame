@@ -1,4 +1,4 @@
-package dev.navo.game.Sprites;
+package dev.navo.game.Sprites.Character;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -129,8 +129,7 @@ public class CrewmateMulti extends Sprite {
         }
     }
 
-
-    // 업데이트
+    // 매 프레임마다 업데이트
     public void update(float dt){
         //DRM으로 이동하는 로직 추가
         setPosition(getX() + drmX
