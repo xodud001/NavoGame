@@ -18,7 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import dev.navo.game.ClientSocket.Client;
+import dev.navo.game.Client.ClientSocket;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
@@ -108,7 +108,7 @@ public class PlayScreen implements Screen {
         B2WorldCreator b2 = new B2WorldCreator(world, map);
         blocks = b2.getRecList();
 
-        myCrewmate = new Crewmate2D(world, atlas, new Vector2(200, 500), "상민이", "Purple", Client.getInstance().getOwner());
+        myCrewmate = new Crewmate2D(world, atlas, new Vector2(200, 500), "상민이", "Purple", ClientSocket.getInstance().getOwner());
         hud.addLabel(myCrewmate.getLabel());
 
         crewmates = new ArrayList<>();

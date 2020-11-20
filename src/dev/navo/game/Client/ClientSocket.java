@@ -1,4 +1,4 @@
-package dev.navo.game.ClientSocket;
+package dev.navo.game.Client;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
@@ -15,26 +15,26 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 @SuppressWarnings("unchecked")
-public class Client {
+public class ClientSocket {
 
-    private static Client instance;
+    private static ClientSocket instance;
     private Socket clientSocket;
     BufferedReader in;
     PrintWriter out;
 
     String owner;
 
-    String serverIPv4 = "118.39.171.111";
-    int serverPort = 10002;
+    String serverIPv4 = "127.0.0.1";
+    int serverPort = 5001;
 
     //싱글톤 객체 접근자
-    public static Client getInstance(){
+    public static ClientSocket getInstance(){
         if(instance == null)
-            instance = new Client();
+            instance = new ClientSocket();
         return instance;
     }
 
-    public Client() {
+    public ClientSocket() {
         connect();
         streamSetting();
     }    
@@ -111,8 +111,8 @@ public class Client {
 
         System.out.println(json.toJSONString());
         out.println(json.toJSONString());
-        String recvData= in.readLine();
 
+        String recvData= in.readLine();
         return recvData.equals("SUCCESS");
     }
 
