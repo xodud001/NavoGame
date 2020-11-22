@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import dev.navo.game.Client.ClientSocket;
+import dev.navo.game.Client.Client;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Tools.FontGenerator;
 import dev.navo.game.Tools.Images;
@@ -36,7 +36,7 @@ public class LobbyScreen implements Screen {
     private TextButton startBtn;
     private TextButton backBtn;
 
-    ClientSocket client;
+    Client client;
 
     public LobbyScreen(final NavoGame game){
         this.game = game;
@@ -44,7 +44,7 @@ public class LobbyScreen implements Screen {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        this.client = ClientSocket.getInstance();
+        this.client = Client.getInstance();
 
         initComponent();
         initActorOnStage();
@@ -73,15 +73,10 @@ public class LobbyScreen implements Screen {
     private void btnsAddListener(){
         startBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
-                try {
-                    JSONObject roomInfo = client.enter(client.getOwner());
-                    startBtn.clear();
-                    backBtn.clear();
-                    Sounds.click.play();
-                    game.setScreen(new WaitScreen(game, roomInfo));
-                } catch (IOException | ParseException e) {
-                    e.printStackTrace();
-                }
+                startBtn.clear();
+                backBtn.clear();
+                Sounds.click.play();
+                game.setScreen(new WaitScreen(game));
             }
         });
 
@@ -92,7 +87,7 @@ public class LobbyScreen implements Screen {
                 backBtn.clear();
                 Sounds.click.play();
                 game.setScreen(new LoginScreen(game));
-                client.logout();
+                //client.logout();
             }
         });
     }

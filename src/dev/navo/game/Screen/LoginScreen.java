@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.navo.game.Client.Client;
-import dev.navo.game.Client.ClientSocket;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Result;
 import dev.navo.game.Tools.FontGenerator;
