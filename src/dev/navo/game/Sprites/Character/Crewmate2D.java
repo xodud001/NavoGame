@@ -40,8 +40,8 @@ public class Crewmate2D extends Sprite{
     private boolean isStop;
     private float stateTimer;
 
-    private float drmX;
-    private float drmY;
+    private float drmX = 0;
+    private float drmY = 0;
 
     public enum State { UP, DOWN, LEFT, RIGHT };
     public State currentState;
@@ -50,10 +50,6 @@ public class Crewmate2D extends Sprite{
     private final static float frameDuration = (float) 0.2;
 
     //Getter
-    public float getStateTimer(){
-        return stateTimer;
-    }
-
     public float getAttackDelay(){
         return attackDelay;
     }
@@ -100,7 +96,7 @@ public class Crewmate2D extends Sprite{
         initFrame();
 
         defineCrewmate(v);
-        setBounds(200-11, 500-12, 20, 25);
+        setBounds(v.x, v.y, 20, 25);
         setRegion(crewmateFrontStand);
     }
 
@@ -250,15 +246,18 @@ public class Crewmate2D extends Sprite{
         JSONObject result = new JSONObject();
 
         result.put("owner", owner);
-        result.put("x", getX());
-        result.put("y", getY());
-        result.put("drmX", drmX);
-        result.put("drmY", drmY);
         result.put("name", name);
         result.put("color", color);
-        result.put("state", currentState.toString());
+
+        result.put("x", getX());
+        result.put("y", getY());
+
+        result.put("drmX", drmX);
+        result.put("drmY", drmY);
+
         result.put("maxHP", maxHP);
         result.put("HP", HP);
+
         result.put("frameNum", getFrameNum());
         return result;
     }

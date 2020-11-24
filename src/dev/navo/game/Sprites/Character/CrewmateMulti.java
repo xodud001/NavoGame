@@ -60,11 +60,16 @@ public class CrewmateMulti extends Sprite {
     public CrewmateMulti(World world, TextureAtlas atlas, JSONObject crewmateJson) {
         super(atlas.findRegion(crewmateJson.get("color").toString()));
         this.world = world;
+
+        this.owner = crewmateJson.get("owner").toString();
+        this.name = crewmateJson.get("name").toString();
+        this.color = crewmateJson.get("color").toString();
+
         this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
         this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
-        this.color = crewmateJson.get("color").toString();
-        this.name = crewmateJson.get("name").toString();
-        owner = crewmateJson.get("owner").toString();
+
+        this.drmX = Float.parseFloat(crewmateJson.get("drmX").toString());
+        this.drmY = Float.parseFloat(crewmateJson.get("drmY").toString());
 
         nameLabel = new Label("Other", new Label.LabelStyle(FontGenerator.font32, Color.WHITE));
         nameLabel.setWidth(50);
@@ -152,6 +157,7 @@ public class CrewmateMulti extends Sprite {
         this.name = crewmateJson.get("name").toString();
         nameLabel.setText(name);
         this.color = crewmateJson.get("color").toString();
+
         this.drmX = Float.parseFloat(crewmateJson.get("drmX").toString());
         this.drmY = Float.parseFloat(crewmateJson.get("drmY").toString());
 

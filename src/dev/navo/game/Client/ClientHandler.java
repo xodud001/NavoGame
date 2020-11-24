@@ -21,9 +21,12 @@ public class ClientHandler  extends ChannelInboundHandlerAdapter {
         String header = json.get("Header").toString();
 
         if(header.equals("Auth")) {
-            loginBuffer.put( JsonParser.createJson(json.get("body").toString()) );
+            loginBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
+        }else if(header.equals("Event")) {
+            eventBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
+        }else if(header.equals("InGame")) {
+            inGameBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
         }
-
     }
 
     @Override

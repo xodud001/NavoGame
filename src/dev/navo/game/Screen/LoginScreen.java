@@ -112,6 +112,7 @@ public class LoginScreen implements Screen {
                         Sounds.success.play(1); // 성공 소리
                         client.setOwner(idField.getText());
                         game.setScreen(new LobbyScreen(game));
+                        dispose();
                     }else{
                         resultScene.setResultLabel("로그인 실패!");
                         resultScene.resultShow();
@@ -126,6 +127,7 @@ public class LoginScreen implements Screen {
             public void clicked (InputEvent event, float x, float y) { // 회원가입 버튼 리스너
                 Sounds.click.play(1);// 버튼 클릭 효과음
                 game.setScreen(new SignUpScreen(game));
+                dispose();
             }
         });
 
@@ -133,6 +135,7 @@ public class LoginScreen implements Screen {
             public void clicked (InputEvent event, float x, float y) { // 아이디 패스워드 찾기 버튼 리스너
                 Sounds.click.play(1); // 버튼 클릭 효과음
                 game.setScreen(new IdPwFindScreen(game));
+                dispose();
             }
         });
 
@@ -148,7 +151,7 @@ public class LoginScreen implements Screen {
         Gdx.gl.glClearColor(255, 255, 255, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin(); // 배치에 그림 그리기 전에 시작하고 끝을 명시해줘야 함
-        game.batch.draw(Images.background, 0 , 0 ); // 배치에다가 배경을 그림
+        Images.renderBackground(delta, game.batch);
         game.batch.end(); // 배치의 끝
         stage.draw(); // 스테이지에 올라간 액터들을 그림(텍스트 필드나 라벨)
     }
@@ -175,6 +178,5 @@ public class LoginScreen implements Screen {
 
     @Override
     public void dispose() {
-
     }
 }

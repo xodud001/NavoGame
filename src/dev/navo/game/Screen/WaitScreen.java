@@ -1,52 +1,44 @@
 package dev.navo.game.Screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import dev.navo.game.Buffer.InGameBuffer;
+import dev.navo.game.Buffer.EventBuffer;
 import dev.navo.game.Client.Client;
 import dev.navo.game.Client.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Character.Crewmate2D;
 import dev.navo.game.Sprites.Character.CrewmateMulti;
-import dev.navo.game.Tools.B2WorldCreator;
-import dev.navo.game.Tools.Util;
+import dev.navo.game.Tools.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class WaitScreen implements Screen {    private NavoGame game;
-
-    // 사운드 변수
-    private Sound clickbtnSound;
-    private Sound startSound;
 
     private TextureAtlas atlas;
 
     private OrthographicCamera gameCam;
     private Viewport gamePort;
     private Hud hud;
-
-    private Texture background;
 
     private TmxMapLoader mapLoader;
     private TiledMap map;
@@ -57,28 +49,28 @@ public class WaitScreen implements Screen {    private NavoGame game;
 
     private Crewmate2D myCrewmate;
 
-    private ArrayList<Rectangle> blocks;
-
     private Vector2 centerHP;
 
     private Room room;
 
-    ShapeRenderer shapeRenderer;
+    private Label players;
+
+    private TextButton startBtn;
+    private TextButton backBtn;
+
+    private ShapeRenderer shapeRenderer;
 
     Client client;
     private String mapType = "Wait.tmx";
     private static final int moveSpeed = 10;
     private static int maxSpeed = 80;
 
-    public WaitScreen(NavoGame game){
+    public WaitScreen(NavoGame game) throws ParseException {
         client = Client.getInstance();
-        myCrewmate = new Crewmate2D(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
-
         atlas = new TextureAtlas("Image.atlas");
         centerHP = new Vector2(375, 325);
         shapeRenderer = new ShapeRenderer();
         this.game = game;
-        background = new Texture("data/GameBack.png");
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(NavoGame.V_WIDTH, NavoGame.V_HEIGHT, gameCam);
         hud = new Hud(game.batch);
@@ -87,34 +79,71 @@ public class WaitScreen implements Screen {    private NavoGame game;
         renderer = new OrthogonalTiledMapRenderer(map);
         gameCam.position.set(100,100, 0); // 200, 1130 = Left Top
 
-        clickbtnSound = Gdx.audio.newSound(Gdx.files.internal("sound/clickbtn.wav")); // 각종 클릭 사운드 초기화
-        startSound = Gdx.audio.newSound(Gdx.files.internal("sound/gamestart.wav")); // 게임 시작 효과음 초기화
-
         world = new World(new Vector2(0,0), true);
         b2dr = new Box2DDebugRenderer();
 
-        B2WorldCreator b2 = new B2WorldCreator(world, map);
-        blocks = new ArrayList<>();
-        blocks = b2.getRecList();
+        new B2WorldCreator(world, map);
 
-        //room = new Room(world, atlas, InGameBuffer.getInstance().get());
+        myCrewmate = new Crewmate2D(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
+        client.enter(myCrewmate.getCrewmateInitJson());
+        JSONObject roomInfo = EventBuffer.getInstance().get();
+        room = new Room(world, atlas, roomInfo, hud);
 
+        initComponent();
+        btnsAddListener();
 
-        hud.addLabel(myCrewmate.getLabel());
-        //client.update(myCrewmate, room, world, atlas, hud);
+        client.setIsInGameThread(true);
+        client.updateSender(myCrewmate, room);
+        client.updateReceiver(room, world, atlas, hud);
+        client.eventHandler(room, hud);
     }
+    //컴포넌트 초기화
+    private void initComponent(){
+        players = new Label( ""+ room.getCrewmates().size(), new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE ));
+        players.setBounds(370, 270, 30, 30);
+
+        startBtn = new TextButton( "START", Util.skin );
+        startBtn.setBounds(170, 5, 60, 24);
+
+        backBtn = new TextButton( "EXIT", Util.skin );
+        backBtn.setBounds(350, 5, 40, 24);
+
+        hud.addActor(startBtn);
+        hud.addActor(backBtn);
+        hud.addActor(players);
+        hud.addActor(myCrewmate.getLabel());
+
+        Gdx.input.setInputProcessor(hud.stage);
+    }
+    //버튼 리스너
+    private void btnsAddListener(){
+        startBtn.addListener(new ClickListener(){
+            public void clicked (InputEvent event, float x, float y) {
+                startBtn.clear();
+                backBtn.clear();
+                Sounds.start.play(); // 게임 시작 사운드 출력
+                game.setScreen(new PlayScreen(game)); // PlayScreen으로 넘어가기
+                dispose();
+            }
+        });
+
+        backBtn.addListener(new ClickListener(){
+            public void clicked (InputEvent event, float x, float y) {
+                startBtn.clear();
+                backBtn.clear();
+                Sounds.click.play();
+                game.setScreen(new LobbyScreen(game));
+                client.exit(room.getRoomCode());
+                dispose();
+            }
+        });
+    }
+
     // 키 입력 처리 메소드
     public void handleInput(float dt){
         Util.moveInputHandle(myCrewmate, maxSpeed, moveSpeed); // 내 캐릭터 움직임 처리
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
-            startSound.play(); // 게임 시작 사운드 출력
-            game.setScreen(new PlayScreen(game)); // PlayScreen으로 넘어가기
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) game.setScreen(new LobbyScreen(game)); // 나가기
-
     }
+
 
     public void update(float dt) throws IOException, ParseException {
         handleInput(dt);
@@ -124,7 +153,7 @@ public class WaitScreen implements Screen {    private NavoGame game;
         for(CrewmateMulti c :  room.getCrewmates()) c.update(dt); // 방에 있는 캐릭터들 업데이트
 
         hud.showMessage("Room Code : "+ room.getRoomCode());
-
+        players.setText(room.getCrewmates().size());
         gameCam.position.x = myCrewmate.b2Body.getPosition().x;
         gameCam.position.y = myCrewmate.b2Body.getPosition().y;
 
@@ -148,7 +177,7 @@ public class WaitScreen implements Screen {    private NavoGame game;
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(background,0 ,0 );
+        Images.renderBackground(delta, game.batch);
         game.batch.end();
 
         renderer.render();

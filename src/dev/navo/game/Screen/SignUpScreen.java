@@ -136,9 +136,9 @@ public class SignUpScreen implements Screen {
 
         backBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
-                Gdx.graphics.setWindowedMode(400, 300);
-                Sounds.click.play(1);
                 game.setScreen(new LoginScreen(game));
+                Sounds.click.play(1);
+                dispose();
             }
         });
 
@@ -182,7 +182,7 @@ public class SignUpScreen implements Screen {
         Gdx.gl.glClearColor(255, 255, 255, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
-        game.batch.draw(Images.background, 0 , 0 );
+        Images.renderBackground(delta, game.batch);
         game.batch.end();
         stage.draw();
     }

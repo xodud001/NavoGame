@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.navo.game.Client.Client;
+import dev.navo.game.Client.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Sprites.Character.Crewmate2D;
 

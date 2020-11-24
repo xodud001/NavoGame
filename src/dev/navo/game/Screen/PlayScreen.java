@@ -19,6 +19,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.navo.game.Client.Client;
+import dev.navo.game.Client.Room;
 import dev.navo.game.NavoGame;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Bullet;
@@ -28,6 +29,7 @@ import dev.navo.game.Sprites.Items.ItemSample;
 import dev.navo.game.Sprites.Items.SpeedItem;
 import dev.navo.game.Sprites.Items.TrapItem;
 import dev.navo.game.Tools.B2WorldCreator;
+import dev.navo.game.Tools.Images;
 import dev.navo.game.Tools.Util;
 
 import java.util.ArrayList;
@@ -109,7 +111,7 @@ public class PlayScreen implements Screen {
         blocks = b2.getRecList();
 
         myCrewmate = new Crewmate2D(world, atlas, new Vector2(200, 500), "상민이", "Purple", Client.getInstance().getOwner());
-        hud.addLabel(myCrewmate.getLabel());
+        hud.addActor(myCrewmate.getLabel());
 
         crewmates = new ArrayList<>();
 
@@ -377,7 +379,7 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(background, 0, 0);
+        Images.renderBackground(delta, game.batch);
         game.batch.end();
 
         renderer.render();

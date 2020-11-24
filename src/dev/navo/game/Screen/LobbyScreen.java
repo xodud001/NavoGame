@@ -75,8 +75,13 @@ public class LobbyScreen implements Screen {
             public void clicked (InputEvent event, float x, float y) {
                 startBtn.clear();
                 backBtn.clear();
-                Sounds.click.play();
-                game.setScreen(new WaitScreen(game));
+                Sounds.wait.play();
+                try {
+                    game.setScreen(new WaitScreen(game));
+                    dispose();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -87,6 +92,7 @@ public class LobbyScreen implements Screen {
                 backBtn.clear();
                 Sounds.click.play();
                 game.setScreen(new LoginScreen(game));
+                dispose();
                 //client.logout();
             }
         });
@@ -102,7 +108,7 @@ public class LobbyScreen implements Screen {
         Gdx.gl.glClearColor(255, 255, 255, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
-        game.batch.draw(Images.background, 0, 0);
+        Images.renderBackground(delta, game.batch);
         game.batch.end();
         stage.draw();
     }

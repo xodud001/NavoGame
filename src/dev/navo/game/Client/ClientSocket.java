@@ -72,7 +72,7 @@ public class ClientSocket {
     }
 
     //업데이트
-    public void update(final Crewmate2D user, final dev.navo.game.Client.Room room, final World world, final TextureAtlas atlas, final Hud hud) {
+    public void update(final Crewmate2D user, final Room room, final World world, final TextureAtlas atlas, final Hud hud) {
         new Thread(new Runnable() {
             int i = 0;
             boolean isThread=true;

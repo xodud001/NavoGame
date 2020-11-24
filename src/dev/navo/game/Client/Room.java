@@ -5,26 +5,30 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import dev.navo.game.Scenes.Hud;
 import dev.navo.game.Sprites.Character.CrewmateMulti;
+import dev.navo.game.Tools.JsonParser;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
 
 public class Room { // 게임 방
 
-
     int roomCode;
     ArrayList<CrewmateMulti> crewmates;
 
-    public Room(World world, TextureAtlas atlas, JSONObject roomInfo){
-        crewmates = new ArrayList<>();
+    public Room(World world, TextureAtlas atlas, JSONObject roomInfo, Hud hud) throws ParseException {
 
-        this.roomCode = Integer.parseInt(roomInfo.get("code").toString()) ;
-
-        JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
-
-        int i = 0;
-        while(crewmatesJson.get("" + i) != null){
-            crewmates.add(new CrewmateMulti(world, atlas, (JSONObject)crewmatesJson.get("" + i++)));
+        if(roomInfo.get("Function").equals("5")){
+            this.crewmates = new ArrayList<>();
+            this.roomCode = Integer.parseInt(roomInfo.get("code").toString()) ;
+            JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
+            int i = 0;
+            while(crewmatesJson.get("" + i) != null){
+                CrewmateMulti temp = new CrewmateMulti(world, atlas, (JSONObject)crewmatesJson.get("" + i));
+                hud.stage.addActor(temp.getLabel());
+                crewmates.add(temp);
+                i++;
+            }
         }
     }
 
