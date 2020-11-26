@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -31,89 +32,71 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class WaitScreen implements Screen {    private NavoGame game;
 
-    private TextureAtlas atlas;
-
-    private OrthographicCamera gameCam;
-    private Viewport gamePort;
-    private Hud hud;
-
-    private TmxMapLoader mapLoader;
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer renderer;
-
-    private World world;
-    private Box2DDebugRenderer b2dr;
-
-    private Crewmate2D myCrewmate;
-
-    private Vector2 centerHP;
-
     private Room room;
-
-    private Label players;
 
     private TextButton startBtn;
     private TextButton backBtn;
 
+    private ArrayList<Label> users;
+    private String nickname;
+
     private ShapeRenderer shapeRenderer;
 
+    private Stage stage; // 텍스트 필드나 라벨 올릴 곳.
+
+    private Viewport viewport;
+
     Client client;
-    private String mapType = "Wait.tmx";
-    private static final int moveSpeed = 10;
-    private static int maxSpeed = 80;
 
-    public WaitScreen(NavoGame game) throws ParseException {
-        client = Client.getInstance();
-        atlas = new TextureAtlas("Image.atlas");
-        centerHP = new Vector2(375, 325);
+    public WaitScreen(NavoGame game, String nickname) throws ParseException {
+        this.game = game; // Lig Gdx 게임 클래스 초기화
+        viewport = new FitViewport(NavoGame.V_WIDTH , NavoGame.V_HEIGHT , new OrthographicCamera()); // 뷰포트 생성
+        stage = new Stage(viewport, game.batch); // 스테이지 생성
+        Gdx.input.setInputProcessor(stage); // 스테이지에 마우스 및 키보드 입력을 받기
+
+        users = new ArrayList<>();
+
+        //this.nickname = nickname;
+
         shapeRenderer = new ShapeRenderer();
-        this.game = game;
-        gameCam = new OrthographicCamera();
-        gamePort = new FitViewport(NavoGame.V_WIDTH, NavoGame.V_HEIGHT, gameCam);
-        hud = new Hud(game.batch);
-        mapLoader = new TmxMapLoader();
-        map = mapLoader.load(mapType);
-        renderer = new OrthogonalTiledMapRenderer(map);
-        gameCam.position.set(100,100, 0); // 200, 1130 = Left Top
-
-        world = new World(new Vector2(0,0), true);
-        b2dr = new Box2DDebugRenderer();
-
-        new B2WorldCreator(world, map);
-
-        myCrewmate = new Crewmate2D(world, atlas, new Vector2(100, 100), "상민이", "Purple", client.getOwner());
-        client.enter(myCrewmate.getCrewmateInitJson());
-        JSONObject roomInfo = EventBuffer.getInstance().get();
-        room = new Room(world, atlas, roomInfo, hud);
 
         initComponent();
         btnsAddListener();
 
-        client.setIsInGameThread(true);
-        client.updateSender(myCrewmate, room);
-        client.updateReceiver(room, world, atlas, hud);
-        client.eventHandler(room, hud);
+        //client.enter(myCrewmate.getCrewmateInitJson());
+        //JSONObject roomInfo = EventBuffer.getInstance().get();
+        //room = new Room(world, atlas, roomInfo, hud);
+
+        //client.setIsInGameThread(true);
+        //client.updateSender(myCrewmate, room);
+        //client.updateReceiver(room, world, atlas, hud);
+        //client.eventHandler(room, hud);
     }
     //컴포넌트 초기화
     private void initComponent(){
-        players = new Label( ""+ room.getCrewmates().size(), new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE ));
-        players.setBounds(370, 270, 30, 30);
 
         startBtn = new TextButton( "START", Util.skin );
-        startBtn.setBounds(170, 5, 60, 24);
+        startBtn.setBounds(170, 34,60, 22);
 
         backBtn = new TextButton( "EXIT", Util.skin );
-        backBtn.setBounds(350, 5, 40, 24);
+        backBtn.setBounds(350, 10, 40, 17);
 
-        hud.addActor(startBtn);
-        hud.addActor(backBtn);
-        hud.addActor(players);
-        hud.addActor(myCrewmate.getLabel());
+        for(int i = 0 ; i < 5 ; i++){ // Room.getRoom().getCrewmates().size
+            Label temp = new Label("", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE));
+            temp.setBounds(80, 200- i * 30, 200, 20);
+            users.add(temp);
+        }
 
-        Gdx.input.setInputProcessor(hud.stage);
+        for(Label label : users)
+            stage.addActor(label);
+
+        stage.addActor(startBtn);
+        stage.addActor(backBtn);
+
     }
     //버튼 리스너
     private void btnsAddListener(){
@@ -133,46 +116,24 @@ public class WaitScreen implements Screen {    private NavoGame game;
                 backBtn.clear();
                 Sounds.click.play();
                 game.setScreen(new LobbyScreen(game));
-                client.exit(room.getRoomCode());
+                //client.exit(room.getRoomCode());
                 dispose();
             }
         });
     }
 
-    // 키 입력 처리 메소드
-    public void handleInput(float dt){
-        Util.moveInputHandle(myCrewmate, maxSpeed, moveSpeed); // 내 캐릭터 움직임 처리
-    }
-
-
-    public void update(float dt) throws IOException, ParseException {
-        handleInput(dt);
-        Util.frameSet(world); // FSP 60으로 설정
-
-        myCrewmate.update(dt); // 내 캐릭터 업데이트
-        for(CrewmateMulti c :  room.getCrewmates()) c.update(dt); // 방에 있는 캐릭터들 업데이트
-
-        hud.showMessage("Room Code : "+ room.getRoomCode());
-        players.setText(room.getCrewmates().size());
-        gameCam.position.x = myCrewmate.b2Body.getPosition().x;
-        gameCam.position.y = myCrewmate.b2Body.getPosition().y;
-
-        gameCam.update();
-        renderer.setView(gameCam);
-    }
     @Override
     public void show() {
 
     }
 
+    private void update(float delta){
+
+    }
+
     @Override
     public void render(float delta) {
-        try {
-            update(delta);
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
+        update(delta);
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -180,41 +141,38 @@ public class WaitScreen implements Screen {    private NavoGame game;
         Images.renderBackground(delta, game.batch);
         game.batch.end();
 
-        renderer.render();
-        b2dr.render(world, gameCam.combined);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.RED);
-        game.batch.setProjectionMatrix(gameCam.combined);
+        drawRect();
 
         game.batch.begin();
-
-        room.drawCrewmates(game.batch, myCrewmate.owner);
-
-        for(CrewmateMulti c : room.getCrewmates()) {
-            if(!myCrewmate.owner.equals(c.owner)) {
-                shapeRenderer.rect(centerHP.x + (c.getX() - myCrewmate.getX()) * 2,
-                        centerHP.y + (c.getY() - myCrewmate.getY()) * 2, 50 * (c.getHP() / c.getMaxHP()), 10);
-                c.getLabel().setPosition(174 + (c.getX() - myCrewmate.getX()),
-                        165 + (c.getY() - myCrewmate.getY()));
+        for(int i = 0 ; i < users.size() ; i++){
+            CrewmateMulti temp;
+            if(i < Room.getRoom().getCrewmates().size() ){
+                temp = Room.getRoom().getCrewmates().get(i);
+                game.batch.draw(Images.header[0],270,198 - i * 30);
+                users.get(i).setText(temp.getName());
+                continue;
             }
+            users.get(i).setText("");
         }
-
-        myCrewmate.draw(game.batch);
-        shapeRenderer.rect(centerHP.x ,centerHP.y, 50 * (myCrewmate.getHP() / myCrewmate.getMaxHP()), 10);
-        myCrewmate.getLabel().setPosition(174, 166);
 
         game.batch.end();
 
-        shapeRenderer.end();
+        stage.draw();
+    }
 
-        game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-        hud.stage.draw();
+    private void drawRect() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+
+        for(int i = 0 ; i < 5 ; i++) {
+            shapeRenderer.rect(150, 400 - i * 60, 500, 40);// 사각형 그리기
+        }
+        shapeRenderer.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        gamePort.update(width, height);
+        viewport.update(width, height);
     }
 
     @Override
@@ -234,10 +192,5 @@ public class WaitScreen implements Screen {    private NavoGame game;
 
     @Override
     public void dispose() {
-        map.dispose();
-        renderer.dispose();
-        world.dispose();
-        b2dr.dispose();
-        hud.dispose();
     }
 }

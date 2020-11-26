@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import dev.navo.game.Tools.FontGenerator;
+import dev.navo.game.Tools.Sounds;
 import org.json.simple.JSONObject;
 
 public class Crewmate2D extends Sprite{
@@ -36,12 +37,23 @@ public class Crewmate2D extends Sprite{
     private float maxHP;
     private float HP;
 
+    private float stepDelay;
     private float attackDelay;
     private boolean isStop;
     private float stateTimer;
 
     private float drmX = 0;
     private float drmY = 0;
+
+    private int maxSpeed;
+
+    public int getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(int maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
 
     public enum State { UP, DOWN, LEFT, RIGHT };
     public State currentState;
@@ -72,17 +84,18 @@ public class Crewmate2D extends Sprite{
         }
     }
 
+
     //생성자
-    public Crewmate2D(World world, TextureAtlas atlas, Vector2 v, String name, String color, String owner){
-        super(atlas.findRegion(color));
+    public Crewmate2D(World world, TextureAtlas atlas, Vector2 v, String name, String owner){
+        super(atlas.findRegion("Blue"));
 
         this.owner = owner;
         this.world = world;
         this.maxHP = 10;
         this.HP = 10;
-        this.color = color;
+        this.color = "Blue";
         this.name = name;
-        nameLabel = new Label(name, new Label.LabelStyle(FontGenerator.font32, Color.WHITE));
+        nameLabel = new Label(name, new Label.LabelStyle(FontGenerator.font32, Color.BLUE));
         nameLabel.setWidth(50);
         nameLabel.setHeight(15);
         nameLabel.setFontScale(0.25f);
@@ -93,11 +106,15 @@ public class Crewmate2D extends Sprite{
         stateTimer = 0;
         attackDelay = 0f;
 
+        maxSpeed = 50;
         initFrame();
-
-        defineCrewmate(v);
         setBounds(v.x, v.y, 20, 25);
         setRegion(crewmateFrontStand);
+    }
+
+    public void setWorld(World world){
+        this.world = world;
+        defineCrewmate(new Vector2(this.getX(), this.getY()));
     }
 
     //캐릭터 움직임 프레임 초기화
@@ -168,10 +185,17 @@ public class Crewmate2D extends Sprite{
     // 업데이트
     public void update(float dt){
         if(attackDelay > 0) attackDelay -= dt;
+        if(stepDelay > 0) stepDelay -= dt;
         drmX = b2Body.getLinearVelocity().x * dt; // 1초당 80만큼 움직임 = velocity.X = 80 * dt = 1 Frame 당 움직일 X 거리
         drmY = b2Body.getLinearVelocity().y * dt;// 1초당 80만큼 움직임 = velocity.Y = 80 * dt = 1 Frame 당 움직일 Y 거리
         setPosition(b2Body.getPosition().x - getWidth() /2 -1, b2Body.getPosition().y - getHeight() / 2);
 
+        if(!isStop){
+            if(stepDelay <= 0){
+                Sounds.footstep.play();
+                stepDelay = 0.3f;
+            }
+        }
         setRegion(getFrame(dt));
     }
 

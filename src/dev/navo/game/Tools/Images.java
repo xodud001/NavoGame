@@ -2,13 +2,29 @@ package dev.navo.game.Tools;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import dev.navo.game.NavoGame;
 
 public class Images {
     public static final Texture background = new Texture("data/GameBack.png"); // 배경 이미지 초기화
 
+    public static final Texture minimap = new Texture("back/minimap.png"); // 미니맵
+
+    public static final Texture crewmate = new Texture("Image.png");
+
+    public static final TextureAtlas mainAtlas = new TextureAtlas("Image.atlas");
 
     private static float[] backgroundOffsets = {0, 0, 0, 0};
+
+    //BLUE GRAY GREEN PURPLE RED
+    public static final TextureRegion[] header = {
+            new TextureRegion(crewmate, 1, 25+12, 20, 25),
+            new TextureRegion(crewmate, 91, 25+12, 20, 25),
+            new TextureRegion(crewmate, 181, 25+12, 20, 25),
+            new TextureRegion(crewmate, 271, 25+12, 20, 25),
+            new TextureRegion(crewmate, 361, 25+12, 20, 25)
+    };
 
     private static Texture[] backgrounds = {
             new Texture("back/Starscape00.png"),

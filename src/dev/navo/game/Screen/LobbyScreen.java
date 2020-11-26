@@ -5,16 +5,22 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.navo.game.Client.Client;
+import dev.navo.game.Client.Room;
 import dev.navo.game.NavoGame;
+import dev.navo.game.Sprites.Character.Crewmate2D;
 import dev.navo.game.Tools.FontGenerator;
 import dev.navo.game.Tools.Images;
 import dev.navo.game.Tools.Sounds;
@@ -35,6 +41,8 @@ public class LobbyScreen implements Screen {
 
     private TextButton startBtn;
     private TextButton backBtn;
+
+    private TextField nickname;
 
     Client client;
 
@@ -57,6 +65,11 @@ public class LobbyScreen implements Screen {
         title.setBounds(0, 500, 800, 40);
         title.setAlignment(Align.center);
 
+        nickname = new TextField("", Util.skin);
+        nickname.setBounds(250, 400, 300, 40);
+        nickname.setAlignment(Align.center);
+        nickname.getStyle().font = FontGenerator.font32;
+
         startBtn = new TextButton( "GAME START", Util.skin );
         startBtn.setBounds(300, 200, 200, 32);
 
@@ -66,6 +79,7 @@ public class LobbyScreen implements Screen {
 
     private void initActorOnStage(){
         stage.addActor(title);
+        stage.addActor(nickname);
         stage.addActor(startBtn);
         stage.addActor(backBtn);
     }
@@ -73,11 +87,18 @@ public class LobbyScreen implements Screen {
     private void btnsAddListener(){
         startBtn.addListener(new ClickListener(){
             public void clicked (InputEvent event, float x, float y) {
+                Room.setMyCrewmate(new Crewmate2D(new World(new Vector2(0, 0), true),
+                        Images.mainAtlas,
+                        new Vector2(100, 100),
+                        nickname.getText(),
+                        Client.getInstance().getOwner()
+                ));
+
                 startBtn.clear();
                 backBtn.clear();
                 Sounds.wait.play();
                 try {
-                    game.setScreen(new WaitScreen(game));
+                    game.setScreen(new WaitScreen(game, nickname.getText()));
                     dispose();
                 } catch (ParseException e) {
                     e.printStackTrace();

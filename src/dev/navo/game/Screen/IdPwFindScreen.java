@@ -79,6 +79,8 @@ public class IdPwFindScreen implements Screen {
         idNameLabel = new Label("N A M E", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE));
         idBirthLabel = new Label("B I R T H", new Label.LabelStyle(FontGenerator.fontBold16, Color.WHITE));
         idNameField = new TextField("", Util.skin);
+        idNameField.getStyle().font = FontGenerator.fontBold16;
+
         idBirthField = new TextField("", Util.skin);
         idFindBtn = new TextButton("Find ID", Util.skin);
         idFindBtn = new TextButton("Find ID", Util.skin);

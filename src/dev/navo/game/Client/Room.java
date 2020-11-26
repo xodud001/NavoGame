@@ -4,33 +4,56 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.World;
 import dev.navo.game.Scenes.Hud;
+import dev.navo.game.Sprites.Character.Crewmate2D;
 import dev.navo.game.Sprites.Character.CrewmateMulti;
+import dev.navo.game.Tools.Images;
 import dev.navo.game.Tools.JsonParser;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class Room { // 게임 방
 
+    private static Room room;
+
+    private static Crewmate2D myCrewmate;
+
     int roomCode;
     ArrayList<CrewmateMulti> crewmates;
 
-    public Room(World world, TextureAtlas atlas, JSONObject roomInfo, Hud hud) throws ParseException {
-
-        if(roomInfo.get("Function").equals("5")){
-            this.crewmates = new ArrayList<>();
-            this.roomCode = Integer.parseInt(roomInfo.get("code").toString()) ;
-            JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
-            int i = 0;
-            while(crewmatesJson.get("" + i) != null){
-                CrewmateMulti temp = new CrewmateMulti(world, atlas, (JSONObject)crewmatesJson.get("" + i));
-                hud.stage.addActor(temp.getLabel());
-                crewmates.add(temp);
-                i++;
-            }
+    public Room(){
+        this.crewmates = new ArrayList<>();
+    }
+    public Crewmate2D getMyCrewmate(){
+        return myCrewmate;
+    }
+    public void roomInit(JSONObject roomInfo) throws ParseException {
+        this.roomCode = Integer.parseInt(roomInfo.get("code").toString()) ;
+        JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
+        int i = 0;
+        while(crewmatesJson.get("" + i) != null){
+            CrewmateMulti temp = new CrewmateMulti(Images.mainAtlas, (JSONObject)crewmatesJson.get("" + i));
+            crewmates.add(temp);
+            i++;
         }
     }
+
+    public static Room getRoom(){
+        if(room == null){
+            room = new Room();
+        }
+        return room;
+    } // 싱글톤 게터
+
+    public static void setMyCrewmate(Crewmate2D crewmate){
+        myCrewmate = crewmate;
+        Client.getInstance().enter(crewmate.getCrewmateInitJson());
+    }
+
+
+
 
     public void drawCrewmates(SpriteBatch batch, String user){
         for(CrewmateMulti crewmate : crewmates){
@@ -47,7 +70,7 @@ public class Room { // 게임 방
         return roomCode;
     }
 
-    public void roomUpdate(JSONObject roomInfo, World world, TextureAtlas atlas, Hud hud){
+    public void roomUpdate(JSONObject roomInfo){
         if(this.roomCode == Integer.parseInt(roomInfo.get("code").toString()) ){
             JSONObject crewmatesJson = (JSONObject)roomInfo.get("crewmates");
             int size = Integer.parseInt(crewmatesJson.get("crewmates_size").toString());
@@ -61,14 +84,18 @@ public class Room { // 게임 방
                         isFine = true;
                     }
                 }
-                if (!isFine) addCrewmate(temp, world, atlas, hud);
+                if (!isFine) addCrewmate(temp);
             }
         }
     }
 
-    public void addCrewmate(JSONObject crewmateJson, World world, TextureAtlas atlas, Hud hud){
-        CrewmateMulti temp = new CrewmateMulti(world, atlas, crewmateJson);
+    public void addCrewmate(JSONObject crewmateJson){
+        CrewmateMulti temp = new CrewmateMulti(Images.mainAtlas, crewmateJson);
         crewmates.add(temp);
-        hud.stage.addActor(temp.getLabel());
+    }
+
+    public void roomNewUserEnter(JSONObject body) {
+        CrewmateMulti temp = new CrewmateMulti(Images.mainAtlas, body);
+        crewmates.add(temp);
     }
 }

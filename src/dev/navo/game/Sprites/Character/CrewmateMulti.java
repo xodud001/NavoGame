@@ -46,6 +46,7 @@ public class CrewmateMulti extends Sprite {
     //Getter
     public float getMaxHP() { return maxHP;}
     public float getHP() { return HP;}
+    public String getName() { return name;}
 
     public Label getLabel(){
         return nameLabel;
@@ -57,9 +58,9 @@ public class CrewmateMulti extends Sprite {
     }
 
     //Constructor
-    public CrewmateMulti(World world, TextureAtlas atlas, JSONObject crewmateJson) {
+    public CrewmateMulti(TextureAtlas atlas, JSONObject crewmateJson) {
         super(atlas.findRegion(crewmateJson.get("color").toString()));
-        this.world = world;
+        this.world = new World(new Vector2(0, 0), true);
 
         this.owner = crewmateJson.get("owner").toString();
         this.name = crewmateJson.get("name").toString();

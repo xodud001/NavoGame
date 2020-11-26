@@ -180,7 +180,7 @@ public class Client {
 
         json.put("Body", body);
 
-        channel.writeAndFlush(json.toJSONString() + "\n");
+        channel.writeAndFlush(json.toJSONString() + "\r\n");
     }
 
     //업데이트 보내기
@@ -223,7 +223,7 @@ public class Client {
                     JSONObject roomJson = InGameBuffer.getInstance().get();
                     if(roomJson != null){
                         //System.out.println("UPDATE GET : " + roomJson.toJSONString());
-                        room.roomUpdate(roomJson, world, atlas, hud);
+                        room.roomUpdate(roomJson);
                     }
 
                 }

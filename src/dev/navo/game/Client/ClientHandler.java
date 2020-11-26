@@ -7,6 +7,7 @@ import dev.navo.game.Tools.JsonParser;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 public class ClientHandler  extends ChannelInboundHandlerAdapter {
 
@@ -23,10 +24,21 @@ public class ClientHandler  extends ChannelInboundHandlerAdapter {
         if(header.equals("Auth")) {
             loginBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
         }else if(header.equals("Event")) {
-            eventBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
+            eventHandler(JsonParser.createJson(json.get("Body").toString()));
         }else if(header.equals("InGame")) {
-            inGameBuffer.put( JsonParser.createJson(json.get("Body").toString()) );
+            inGameBuffer.put(JsonParser.createJson(json.get("Body").toString()));
         }
+    }
+
+    private void eventHandler(JSONObject body) throws ParseException {
+        String function = body.get("Function").toString();
+
+        if(function.equals("5")){
+            Room.getRoom().roomInit(body);
+        }else if(function.equals("10")){
+            Room.getRoom().roomNewUserEnter((JSONObject)body.get("crewmate"));
+        }
+
     }
 
     @Override

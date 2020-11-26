@@ -138,7 +138,6 @@ public class SignUpScreen implements Screen {
             public void clicked (InputEvent event, float x, float y) {
                 game.setScreen(new LoginScreen(game));
                 Sounds.click.play(1);
-                dispose();
             }
         });
 
