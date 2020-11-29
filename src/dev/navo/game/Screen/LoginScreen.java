@@ -113,12 +113,12 @@ public class LoginScreen implements Screen {
                         client.setOwner(idField.getText());
                         game.setScreen(new LobbyScreen(game));
                         dispose();
-                    }else{
+                    } else {
                         resultScene.setResultLabel("로그인 실패!");
                         resultScene.resultShow();
                         Sounds.fail.play(1); // 실패 소리
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

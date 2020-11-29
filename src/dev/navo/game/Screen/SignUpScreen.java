@@ -155,7 +155,7 @@ public class SignUpScreen implements Screen {
                         resultScene.resultShow();
                         Sounds.fail.play(1);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 initForm();

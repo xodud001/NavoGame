@@ -50,7 +50,6 @@ public class Crewmate2D extends Sprite{
     public int getMaxSpeed() {
         return maxSpeed;
     }
-
     public void setMaxSpeed(int maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
@@ -75,26 +74,34 @@ public class Crewmate2D extends Sprite{
     public void hit() {
         if(HP != 0) this.HP--;
     }
+
     public void setAttackDelay(float delay){
         this.attackDelay = delay;
     }
+
     public void heal(){
         if( HP != 0 && HP != this.getMaxHP()){
             this.HP++;
         }
     }
 
+    public void setWorld(World world){
+        this.world = world;
+        defineCrewmate(new Vector2(this.getX(), this.getY()));
+    }
 
     //생성자
-    public Crewmate2D(World world, TextureAtlas atlas, Vector2 v, String name, String owner){
+    public Crewmate2D(World world, TextureAtlas atlas, Vector2 v, String owner, String name) {
         super(atlas.findRegion("Blue"));
+        this.world = world;
 
         this.owner = owner;
-        this.world = world;
+        this.name = name;
+        this.color = "Blue";
+
         this.maxHP = 10;
         this.HP = 10;
-        this.color = "Blue";
-        this.name = name;
+
         nameLabel = new Label(name, new Label.LabelStyle(FontGenerator.font32, Color.BLUE));
         nameLabel.setWidth(50);
         nameLabel.setHeight(15);
@@ -110,11 +117,6 @@ public class Crewmate2D extends Sprite{
         initFrame();
         setBounds(v.x, v.y, 20, 25);
         setRegion(crewmateFrontStand);
-    }
-
-    public void setWorld(World world){
-        this.world = world;
-        defineCrewmate(new Vector2(this.getX(), this.getY()));
     }
 
     //캐릭터 움직임 프레임 초기화
@@ -247,9 +249,10 @@ public class Crewmate2D extends Sprite{
         return region;
     }
 
-    //현재 스테이트 없데이트
+    //현재 스테이트 업데이트
     public State getState(){
         isStop = false;
+
         if(b2Body.getLinearVelocity().x > 0)
             return State.RIGHT;
         else if(b2Body.getLinearVelocity().x < 0)
@@ -264,26 +267,35 @@ public class Crewmate2D extends Sprite{
         }
     }
 
+    public JSONObject getCrewmateEnterJson() {
+        JSONObject json = new JSONObject();
+
+        json.put("owner", owner);
+        json.put("name", name);
+
+        return json;
+    }
+
     //크루메이트 초기화 정보 JSON으로 출력
     @SuppressWarnings("unchecked")
     public JSONObject getCrewmateInitJson(){
-        JSONObject result = new JSONObject();
+        JSONObject childJson = new JSONObject();
 
-        result.put("owner", owner);
-        result.put("name", name);
-        result.put("color", color);
+        childJson.put("owner", owner);
+        childJson.put("name", name);
+        childJson.put("color", "Blue");
 
-        result.put("x", getX());
-        result.put("y", getY());
 
-        result.put("drmX", drmX);
-        result.put("drmY", drmY);
+        childJson.put("x", getX());
+        childJson.put("y", getY());
+        childJson.put("drmX", drmX);
+        childJson.put("drmY", drmY);
+        //childJson.put("frameNum", getFrameNum());
 
-        result.put("maxHP", maxHP);
-        result.put("HP", HP);
+        childJson.put("maxHP", maxHP);
+        childJson.put("HP", HP);
 
-        result.put("frameNum", getFrameNum());
-        return result;
+        return childJson;
     }
 
     // 멀티에 사용할 프레임 번호 생성

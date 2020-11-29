@@ -90,13 +90,13 @@ public class LobbyScreen implements Screen {
                 Room.setMyCrewmate(new Crewmate2D(new World(new Vector2(0, 0), true),
                         Images.mainAtlas,
                         new Vector2(100, 100),
-                        nickname.getText(),
-                        Client.getInstance().getOwner()
+                        Client.getInstance().getOwner(),
+                        nickname.getText()
                 ));
-
                 startBtn.clear();
                 backBtn.clear();
                 Sounds.wait.play();
+
                 try {
                     game.setScreen(new WaitScreen(game, nickname.getText()));
                     dispose();

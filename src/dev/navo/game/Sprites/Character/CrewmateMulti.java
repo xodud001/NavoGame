@@ -47,30 +47,36 @@ public class CrewmateMulti extends Sprite {
     public float getMaxHP() { return maxHP;}
     public float getHP() { return HP;}
     public String getName() { return name;}
-
+    public String getOwner() { return owner; }
     public Label getLabel(){
         return nameLabel;
     }
-
+    public String getColorName(){
+        return color;
+    }
     //Setter
     public void hit() {
         if(HP != 0) this.HP--;
     }
+    public void setColorName(String color){
+        this.color = color;
+    }
+
 
     //Constructor
-    public CrewmateMulti(TextureAtlas atlas, JSONObject crewmateJson) {
-        super(atlas.findRegion(crewmateJson.get("color").toString()));
+    public CrewmateMulti(TextureAtlas atlas, JSONObject crewmate) {
+        super(atlas.findRegion("Blue"));
         this.world = new World(new Vector2(0, 0), true);
 
-        this.owner = crewmateJson.get("owner").toString();
-        this.name = crewmateJson.get("name").toString();
-        this.color = crewmateJson.get("color").toString();
+        this.owner = crewmate.get("owner").toString();
+        this.name = crewmate.get("name").toString();
+        this.color = "Red";
 
-        this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
-        this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
+        this.maxHP = 10;
+        this.HP = 10;
 
-        this.drmX = Float.parseFloat(crewmateJson.get("drmX").toString());
-        this.drmY = Float.parseFloat(crewmateJson.get("drmY").toString());
+        this.drmX = 0f;
+        this.drmY = 0f;
 
         nameLabel = new Label("Other", new Label.LabelStyle(FontGenerator.font32, Color.WHITE));
         nameLabel.setWidth(50);
@@ -80,10 +86,15 @@ public class CrewmateMulti extends Sprite {
 
         initFrame();
 
-        setBounds( Integer.parseInt(crewmateJson.get("x").toString())
-                , Integer.parseInt(crewmateJson.get("y").toString())
+        setBounds( 0, 0, 20,25);
+
+        /*
+        setBounds( Integer.parseInt(crewmate.get("x").toString())
+                , Integer.parseInt(crewmate.get("y").toString())
                 , 20
                 , 25);
+
+         */
         setRegion(crewmateFrontStand);
     }
 
@@ -146,21 +157,22 @@ public class CrewmateMulti extends Sprite {
     }
 
     //받아온 정보로 초기화
-    public void updateInfo(JSONObject crewmateJson) {
-        setPosition(Integer.parseInt(crewmateJson.get("x").toString())
-                ,Integer.parseInt(crewmateJson.get("y").toString()));
+    public void updateInfo(JSONObject updateJson) {
 
-        this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
-        this.HP = Integer.parseInt(crewmateJson.get("HP").toString());
-
-        this.frameNum = Integer.parseInt(crewmateJson.get("frameNum").toString());
-
-        this.name = crewmateJson.get("name").toString();
+        this.name = updateJson.get("name").toString();
         nameLabel.setText(name);
-        this.color = crewmateJson.get("color").toString();
+        //this.color = crewmateJson.get("color").toString();
 
-        this.drmX = Float.parseFloat(crewmateJson.get("drmX").toString());
-        this.drmY = Float.parseFloat(crewmateJson.get("drmY").toString());
+        setPosition(Integer.parseInt(updateJson.get("x").toString())
+                ,Integer.parseInt(updateJson.get("y").toString()));
+
+        this.drmX = Float.parseFloat(updateJson.get("drmX").toString());
+        this.drmY = Float.parseFloat(updateJson.get("drmY").toString());
+
+        //this.maxHP = Integer.parseInt(crewmateJson.get("maxHP").toString());
+        this.HP = Integer.parseInt(updateJson.get("HP").toString());
+
+        this.frameNum = Integer.parseInt(updateJson.get("frameNum").toString());
 
     }
 
